@@ -29,6 +29,12 @@ describe('stringifier', () => {
         testStringifier({"howdy": "doody"}, "{howdy:doody}")
         testStringifier({a: {"hello world": [123]}}, "{a:{\"hello world\":[123]}}")
     })
+
+    it("references", () => {
+        const hello = "ThisIsALongEnoughString"
+        const doc = [ hello, hello ]
+        testStringifier(doc, "[$v1=ThisIsALongEnoughString $v1]")
+    })
 })
 
 function testStringifier(expr, expected) {

@@ -212,8 +212,8 @@ Examples:
 
     # A list of pets
     [
-        @Pet(owner: Steve) @Dog(breed: Husky) { name: "Fido" }
-        @Pet(owner: Melinda) @Turtle { name: "Fluffy" }
+        @Pet(owner: Steve) @Dog(breed: Husky) { name: Fido }
+        @Pet(owner: Melinda) @Turtle { name: Fluffy }
     ]
 
 Tags don't even have to be assigned to a value. You can either do this by assigning your tag to `null`, or you can just follow the tag with a period (`.`).

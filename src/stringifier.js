@@ -1,44 +1,95 @@
 const SPECIAL_STRINGS = ["null", "true", "false"]
 const UNQUOTED_STRING_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+const MAX_INLINE_STRING = 10
 
 function stringify(obj) {
-    if (obj === null) { return "null" }
+    const references = { next: 1, vars: new Map() }
+    getReferences(obj, references)
 
-    if (typeof(obj) === "boolean") {
-        return obj ? "true" : "false"
+    const seen = new Set()
+    return stringifyImpl(obj, references, seen)
+}
+
+function getReferences(obj, references) {
+    if (obj === null) return
+
+    const type = typeof(obj)
+
+    if (type !== "object" && !(type === "string" && obj.length > MAX_INLINE_STRING)) {
+        return
     }
 
-    if (typeof(obj) === "string") {
-        if (stringShouldBeQuoted(obj)) {
-            return '"' + obj + '"'
-        } else {
-            return obj
-        }
+    // If the object isn't in the list of references, then it's the
+    // first reference. We don't want to assign a variable if it's the 
+    // first one.
+    if (references.vars.get(obj) === null) {
+        references.vars.set(obj, "$v" + references.next++)
+
+        // No need to look for references a second time.
+        return
+    } else {
+        references.vars.set(obj, null)
     }
 
-    if (typeof(obj) === "number") {
-        return obj.toString()
-    }
-
-    if (typeof(obj) === "object") {
+    if (type === "object") {
         if (Array.isArray(obj)) {
-            return stringifyArray(obj)
+            for (const el of obj) {
+                getReferences(el, references)
+            }
         } else {
-            return stringifyObject(obj)
+            for (const el of Object.values(obj)) {
+                getReferences(el, references)
+            }
         }
     }
 }
 
-function stringifyArray(arr) {
-    const parts = arr.map(el => stringify(el))
+function stringifyImpl(obj, references, seen) {
+    let varName = references.vars.get(obj)
+    if (varName) {
+        if (seen.has(obj)) {
+            return varName
+        } else {
+            seen.add(obj)
+        }
+    }
+
+    let value
+    if (obj === null) { 
+        value = "null" 
+    } else if (typeof(obj) === "boolean") {
+        value = obj ? "true" : "false"
+    } else if (typeof(obj) === "string") {
+        if (stringShouldBeQuoted(obj)) {
+            value = '"' + obj + '"'
+        } else {
+            value = obj
+        }
+    } else if (typeof(obj) === "number") {
+        value = obj.toString()
+    } else if (typeof(obj) === "object") {
+        if (Array.isArray(obj)) {
+            value = stringifyArray(obj, references, seen)
+        } else {
+            value = stringifyObject(obj, references, seen)
+        }
+    }
+
+    return varName
+        ? varName + "=" + value
+        : value
+}
+
+function stringifyArray(arr, references, seen) {
+    const parts = arr.map(el => stringifyImpl(el, references, seen))
 
     return "[" + parts.join(' ') + "]"
 }
 
-function stringifyObject(obj) {
+function stringifyObject(obj, references, seen) {
     const parts = Object.entries(obj).map(([key, value]) => {
-        const serKey = stringify(key)
-        const serVal = stringify(value)
+        const serKey = stringifyImpl(key, references, seen)
+        const serVal = stringifyImpl(value, references, seen)
         return serKey + ":" + serVal
     })
 
