@@ -1,7 +1,9 @@
 const { parse } = require('./parser')
 const { stringify } = require('./stringifier')
 
-module.exports = {
+const YAXON = {
     parse,
     stringify
 }
+
+module.exports = YAXON

@@ -222,3 +222,10 @@ Tags don't even have to be assigned to a value. You can either do this by assign
 
     @AlsoJustATag.
 
+## Usage
+
+    const YAXON = require('yaxon')
+
+    const yaxonString = YAXON.stringify({ name: "Fred" })
+
+    const object = YAXON.parse(yaxonString)

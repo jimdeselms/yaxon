@@ -1,5 +1,6 @@
 const lexer = require('./lexer')
 const { linkReferences } = require("./linker")
+const YaxonNode = require('./YaxonNode')
 
 const Kind = lexer.Kind
 
@@ -24,9 +25,9 @@ class Parser {
             if (this._peek().kind === Kind.EQUALS) {
                 this._match(Kind.EQUALS)
                 const node = this.parseTaggedNode()
-                return { ...node, vardef: id.value }
+                return new YaxonNode({ ...node, vardef: id.value })
             } else {
-                return { varref: id.value }
+                return new YaxonNode({ varref: id.value })
             }
         } else {
             return this.parseTaggedNode()
@@ -55,10 +56,10 @@ class Parser {
             }
 
             const tags = node.tags
-                ? [ { id: id.value, args: tagArgs }, ...node.tags]
-                : [ { id: id.value, args: tagArgs } ]
+                ? [ new YaxonNode({ id: id.value, args: tagArgs }), ...node.tags]
+                : [ new YaxonNode({ id: id.value, args: tagArgs }) ]
 
-            return { ...node, tags }
+            return new YaxonNode({ ...node, tags })
         } else {
             return this.parseNode()
         }
@@ -76,17 +77,17 @@ class Parser {
 
     parseNumber() {
         const token = this._match(Kind.NUMBER)
-        return { value: token.value }
+        return new YaxonNode({ value: token.value })
     }
 
     parseString() {
         const token = this._match(Kind.STRING)
 
         switch (token.text) {
-            case "true": return { value: true }
-            case "false": return { value: false }
-            case "null": return { value: null }
-            default: return { value: token.value }
+            case "true": return new YaxonNode({ value: true })
+            case "false": return new YaxonNode({ value: false })
+            case "null": return new YaxonNode({ value: null })
+            default: return new YaxonNode({ value: token.value })
         }
     }
 
@@ -101,7 +102,7 @@ class Parser {
 
         this._match(Kind.RIGHT_BRACKET)
 
-        return { nodes: values }
+        return new YaxonNode({ nodes: values })
     }
 
     parseObject() {
@@ -111,7 +112,7 @@ class Parser {
             nodes[key] = node
         }
         
-        return { nodes }
+        return new YaxonNode({ nodes })
     }
 
     parseKeyValuePairs(open, close) {

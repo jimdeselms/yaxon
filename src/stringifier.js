@@ -1,6 +1,7 @@
 const SPECIAL_STRINGS = ["null", "true", "false"]
 const UNQUOTED_STRING_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/
 const MAX_INLINE_STRING = 10
+const YaxonNode = require('./YaxonNode')
 
 function stringify(obj) {
     const references = { next: 1, vars: new Map() }
@@ -11,11 +12,10 @@ function stringify(obj) {
 }
 
 function getReferences(obj, references) {
-    if (obj === null) return
 
-    const type = typeof(obj)
+    const type = getType(obj)
 
-    if (type !== "object" && !(type === "string" && obj.length > MAX_INLINE_STRING)) {
+    if (type !== "object" && type !== "array" && !(type === "string" && obj.length > MAX_INLINE_STRING)) {
         return
     }
 
@@ -31,16 +31,33 @@ function getReferences(obj, references) {
         references.vars.set(obj, null)
     }
 
-    if (type === "object") {
-        if (Array.isArray(obj)) {
-            for (const el of obj) {
-                getReferences(el, references)
-            }
-        } else {
-            for (const el of Object.values(obj)) {
-                getReferences(el, references)
+    if (type === "array") {
+        for (const el of obj) {
+            getReferences(el, references)
+        }
+    } else {
+        for (const el of Object.values(obj)) {
+            getReferences(el, references)
+        }
+    }
+}
+
+function getType(obj) {
+    const type = typeof obj
+
+    switch (type) {
+        case "object": {
+            if (obj === null) {
+                return "null"
+            } else if (Array.isArray(obj)) {
+                return "array"
+            } else if (obj.__proto__ === YaxonNode.prototype) {
+                return "yaxon"
+            } else {
+                return "object"
             }
         }
+        default: return type
     }
 }
 
@@ -55,24 +72,31 @@ function stringifyImpl(obj, references, seen) {
     }
 
     let value
-    if (obj === null) { 
-        value = "null" 
-    } else if (typeof(obj) === "boolean") {
-        value = obj ? "true" : "false"
-    } else if (typeof(obj) === "string") {
-        if (stringShouldBeQuoted(obj)) {
-            value = '"' + obj + '"'
-        } else {
-            value = obj
-        }
-    } else if (typeof(obj) === "number") {
-        value = obj.toString()
-    } else if (typeof(obj) === "object") {
-        if (Array.isArray(obj)) {
-            value = stringifyArray(obj, references, seen)
-        } else {
+    const type = getType(obj)
+    switch (type) {
+        case "null": 
+        case "undefined":
+            value = "null"; 
+            break
+        case "number": 
+            value = obj.toString()
+            break
+        case "string": 
+            value = stringShouldBeQuoted(obj)
+                ? '"' + obj + '"'
+                : obj
+            break
+        case "object": 
             value = stringifyObject(obj, references, seen)
-        }
+            break
+        case "array":
+            value = stringifyArray(obj, references, seen)
+            break
+        case "boolean":
+            value = obj ? "true" : "false"
+            break
+        default:
+            throw new Error("Unexpected type " + type)
     }
 
     return varName
