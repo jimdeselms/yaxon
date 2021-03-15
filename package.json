@@ -1,0 +1,23 @@
+{
+  "name": "@jmd/yaxon",
+  "version": "0.0.1-test.3",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles"
+  },
+  "author": "",
+  "files": [ "src/**" ],
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  },
+  "jest": {
+    "testMatch": [
+      "/**/*.test.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}
