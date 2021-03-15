@@ -109,9 +109,9 @@ very easily represents a list of email addresses.
 
 So how does YAXON fix this? YAXON attempts to merge the concepts of XML and Json. Here's how the first XML document above would look:
 
-    @html: [
-        @body: [
-            @a(href: "https://google.com"): "Let's Google!"
+    @html [
+        @body [
+            @a(href: "https://google.com") "Let's Google!"
             @img(src: "https://pretty-kittens.com/kitten.jpg")
         ]
     ]
