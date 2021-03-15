@@ -35,6 +35,16 @@ describe('stringifier', () => {
         const doc = [ hello, hello ]
         testStringifier(doc, "[$v1=ThisIsALongEnoughString $v1]")
     })
+
+    it("cycles", () => {
+        const obj = {}
+        obj.obj = obj
+        testStringifier(obj, "$v1={obj:$v1}")
+
+        const arr = []
+        arr[0] = arr
+        testStringifier(arr, "$v1=[$v1]")
+    })
 })
 
 function testStringifier(expr, expected) {
