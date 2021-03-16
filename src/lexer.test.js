@@ -19,6 +19,13 @@ describe("lexer", () => {
         )
     })
 
+    it('escaped characters in strings', () => {
+        testTokens("this is a \\(\\'string\\'\\)\\. Cool\\, eh\\?", { value: "this is a ('string'). Cool, eh?" })
+        testTokens("'this is a (\\'string\\')\\. Cool\\, eh\\?'", { value: "this is a ('string'). Cool, eh?" })
+        testTokens("\"this is a (\\\"string\\\")\\. Cool\\, eh\\?\"", { value: "this is a (\"string\"). Cool, eh?" })
+        testTokens("`this is a (\\`string\\`)\\. Cool\\, eh\\?`", { value: "this is a (`string`). Cool, eh?" })
+    })
+
     it("quoted string", () => {
         testTokens("\"a b c\"", { kind: lexer.Kind.STRING, value: "a b c", text: '"a b c"' })
     })
@@ -40,7 +47,7 @@ describe("lexer", () => {
     })
 
     it("comment", () => {
-        testTokens(" hello #this is a test", { kind: lexer.Kind.STRING, value: "hello" })
+        testTokens(" 'hello' #this is a test", { kind: lexer.Kind.STRING, value: "hello" })
     })
 
     it("dollar then string", () => {
@@ -49,6 +56,10 @@ describe("lexer", () => {
 
     it("whitespace", () => {
         testTokens(" \t\r\n ", ...[])
+    })
+
+    it("multi-line string", () => {
+        testTokens("`this is a test\nthis is only a test`", { value: "this is a test\nthis is only a test"})
     })
 
 })

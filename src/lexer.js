@@ -12,6 +12,8 @@ const FLOAT_STATE = 2
 const UNQUOTED_STRING_STATE = 3
 const COMMENT_STATE = 4
 const QUOTED_STRING_STATE = 5
+const MULTILINE_STRING_STATE = 6
+const ESCAPED_CHAR_STATE =7
 
 const NUMBER = Symbol.for("NUMBER")
 const STRING = Symbol.for("STRING")
@@ -29,10 +31,10 @@ const AT_SIGN = Symbol.for("@")
 const DOT = Symbol.for(".")
 const EOF = Symbol.for("EOF")
 
-const ALLOWED_PUNCTUATION = "()[]{},:$=;@."
-const UNQUOTED_STRING_TERMINATORS = ":,()[]{}.;\n\r#$=\0@"
-const UNQUOTED_STRING_TERMINATORS_WITH_SPACE = UNQUOTED_STRING_TERMINATORS + " \t"
-const WHITESPACE = " \r\t\n"
+const ALLOWED_PUNCTUATION = "()[]{}:$=;@."
+const UNQUOTED_MULTI_WORD_STRING_TERMINATORS = "`()[]{}:$=;@.#$=@,\n\r\0"
+const UNQUOTED_SINGLE_WORD_STRING_TERMINATORS = UNQUOTED_MULTI_WORD_STRING_TERMINATORS + " \t"
+const WHITESPACE = " \r\t\n,"
 
 const Kind = {
     NUMBER,
@@ -62,7 +64,8 @@ function* getTokens(text) {
     let advance = false
     let endCharRead = false
     let stringTerm
-    let allowSpaceInUnquotedString = false
+    let allowSpaceInUnquotedString = true
+    let stateAfterEscape
 
     while (!endCharRead) {
         if (advance) {
@@ -113,6 +116,9 @@ function* getTokens(text) {
                     advance = true
                 } else if (WHITESPACE.includes(char)) {
                     advance = true
+                } else if (char === '`') {
+                    state = MULTILINE_STRING_STATE
+                    advance = true
                 } else {
                     if (char === '\0') {
                         continue
@@ -153,8 +159,8 @@ function* getTokens(text) {
 
             case UNQUOTED_STRING_STATE: {
                 const terminators = allowSpaceInUnquotedString
-                    ? UNQUOTED_STRING_TERMINATORS
-                    : UNQUOTED_STRING_TERMINATORS_WITH_SPACE
+                    ? UNQUOTED_MULTI_WORD_STRING_TERMINATORS
+                    : UNQUOTED_SINGLE_WORD_STRING_TERMINATORS
 
                 if (terminators.includes(char)) {
                     // Unquoted strings must be trimmed. If leading/trailing spaces are 
@@ -162,7 +168,11 @@ function* getTokens(text) {
                     yield { kind: STRING, text: currToken.trim(), value: currToken.trim() }
                     currToken = ""
                     state = START_STATE
-                    allowSpaceInUnquotedString = false
+                    allowSpaceInUnquotedString = true
+                } else if (char === '\\') {
+                    stateAfterEscape = UNQUOTED_STRING_STATE
+                    advance = true
+                    state = ESCAPED_CHAR_STATE
                 } else {
                     currToken += char
                     advance = true
@@ -176,10 +186,39 @@ function* getTokens(text) {
                     advance = true
                     currToken = ""
                     state = START_STATE
+                } else if (char === '\\') {
+                    stateAfterEscape = QUOTED_STRING_STATE
+                    advance = true
+                    state = ESCAPED_CHAR_STATE
                 } else {
                     currToken += char
                     advance = true
                 }
+                break
+            }
+
+            case MULTILINE_STRING_STATE: {
+                if (char === '`') {
+                    yield { kind: STRING, text: '`' + currToken + '`', value: currToken}
+                    advance = true
+                    currToken = ""
+                    state = START_STATE
+                } else if (char === '\\') {
+                    stateAfterEscape = MULTILINE_STRING_STATE
+                    advance = true
+                    state = ESCAPED_CHAR_STATE
+                } else {
+                    currToken += char
+                    advance = true
+                }
+                break
+            }
+
+            case ESCAPED_CHAR_STATE: {
+                advance = true
+                currToken += char
+                state = stateAfterEscape
+                break
             }
 
             case COMMENT_STATE: {
