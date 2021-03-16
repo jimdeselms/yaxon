@@ -42,13 +42,13 @@ function findVariables(ast, variables) {
             for (const entry of ast.nodes) {
                 array.push(findVariables(entry, variables))
             }
-            newNode = new Lazy(array)
+            newNode = new LazyValue(array)
         } else {
             const obj = {}
             for (const [key, value] of Object.entries(ast.nodes)) {
                 obj[key] = findVariables(value, variables)
             }
-            newNode = new Lazy(obj)
+            newNode = new LazyValue(obj)
         }
     } else {
         newNode = { value: ast.value }
@@ -65,9 +65,9 @@ function findVariables(ast, variables) {
     return newNode
 }
 
-class Lazy {
-    constructor(nodesOrFunc) {
-        this.nodes = nodesOrFunc
+class LazyValue {
+    constructor(nodes) {
+        this.nodes = nodes
         this._value = undefined
     }
 

@@ -59,9 +59,14 @@ describe("parser", () => {
     })
 
     it("tags with args", () => {
-//        testTags("@X(name: 'fred') 123", { id: "X", args: { name: { value: "fred"} }})
-  //      testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { value: 1} }}, { id: "multiple2", args: {}})
-        testTags("@X(a: { b: [c] }).", { id: "X", args: { a: { value: { b: { value: [{ value: "c"}]}}}}})
+        testTags("@X(name: 'fred') 123", { id: "X", args: { name: { value: "fred"} }})
+        testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { value: 1} }}, { id: "multiple2", args: {}})
+    })
+
+    it("tag with nested argument", () => {
+        const expr = parse("@X(a: { b: [c] }).")
+        expect(expr.tags[0].id).toEqual("X")
+        expect(expr.tags[0].args.a.value).toEqual({ b: ["c"]})
     })
 
     it("tags without values", () => {
