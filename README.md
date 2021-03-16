@@ -222,6 +222,44 @@ Tags don't even have to be assigned to a value. You can either do this by assign
 
     @AlsoJustATag.
 
+## YAXON strings
+In YAXON, you can always wrap strings in single quotes (') or double quotes ("). 
+
+You can also denote multi-line strings with the backtick (`) character.
+
+You can escape any character with the backslash (\)
+
+But also, many strings don't need quotes at all. If a sequence of characters starts with a letter or underscore (_), then it will be
+treated as as string and will terminate at the end of line, or the next
+syntactically-significant character, like parentheses, braces, colons, commas, etc.
+
+Here is an example of an array filled with legal strings:
+
+    [
+        this is a perfectly legal string
+        here\'s another one with some escaped characters in it
+        "Here's another string"
+        'And here\'s another one.'
+    ]
+
+### YAXON identifiers
+There are certain contexts in which YAXON strings are (by default)
+limited to a single word: 
+* tag names
+* tag argument names
+
+For example:
+
+    @this-tag-must-be-one-word(this-arg-too: 123).
+
+If you really want a tag or argument name to have spaces in it, you
+can still use quotes:
+
+    @"this tag is multiple words"("this arg too": 123).
+
+#### Identifiers in YAXON
+In YAXON, you define
+
 ## Usage
 
     const YAXON = require('yaxon')

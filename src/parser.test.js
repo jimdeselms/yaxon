@@ -77,6 +77,11 @@ describe("parser", () => {
         testValue("@X(name: fred).", null)
     })
 
+    it("quoted tag and argument", () => {
+        testTags("@'Big Tag Name'('tag arg': 123).", 
+            { id: "Big Tag Name", args: {"tag arg": { value: 123 }}})
+    })
+
     it("tag defining variable", () => {
         testTags("@X(a: $a b: $a = 5).", { id: "X", args: { a: { value: 5}, b: {value: 5} }})
     })
