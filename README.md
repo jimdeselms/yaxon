@@ -257,9 +257,6 @@ can still use quotes:
 
     @"this tag is multiple words"("this arg too": 123).
 
-#### Identifiers in YAXON
-In YAXON, you define
-
 ## Usage
 
     const YAXON = require('yaxon')
