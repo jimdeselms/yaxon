@@ -72,6 +72,7 @@ class Parser {
             case Kind.STRING: return this.parseString()
             case Kind.LEFT_BRACKET: return this.parseArray()
             case Kind.LEFT_BRACE: return this.parseObject()
+            default: throw new Error(`Unexpected token ${token.text} (${token.kind.toString()})`)
         }
     }
 

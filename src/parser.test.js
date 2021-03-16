@@ -59,21 +59,25 @@ describe("parser", () => {
     })
 
     it("tags with args", () => {
-        testTags("@X(name: 'fred') 123", { id: "X", args: { name: "fred" }})
-        testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a:1}}, { id: "multiple2", args: {}})
-        testTags("@X(a: { b: [c]}).", { id: "X", args: { a: { b: ["c"]}}})
+//        testTags("@X(name: 'fred') 123", { id: "X", args: { name: { value: "fred"} }})
+  //      testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { value: 1} }}, { id: "multiple2", args: {}})
+        testTags("@X(a: { b: [c] }).", { id: "X", args: { a: { value: { b: { value: [{ value: "c"}]}}}}})
     })
 
     it("tags without values", () => {
         testTags("@X.", { id: "X", args: {}})
         testValue("@X.", null)
 
-        testTags("@X(name: fred).", { id: "X", args: {name: "fred"}})
+        testTags("@X(name: fred).", { id: "X", args: {name: { value: "fred"}}})
         testValue("@X(name: fred).", null)
     })
 
     it("tag defining variable", () => {
-        testTags("@X(a: $a b: $a = 5).", { id: "X", args: { a: 5, b: 5 }})
+        testTags("@X(a: $a b: $a = 5).", { id: "X", args: { a: { value: 5}, b: {value: 5} }})
+    })
+
+    it("tags with tags", () => {
+        testTags("@X(a: @Y hello).", { id: "X", args: { a: { tags: [{ id: "Y", args: {}}], value: "hello"}}})
     })
 
     it("cycles", () => {
@@ -89,6 +93,7 @@ describe("parser", () => {
                 n2: ["susan", "john", "doug", "ricardo"]
             })
     })
+
     it("big example", () => {
         const expr = `[
             {

@@ -102,10 +102,7 @@ function replaceReferences(ast, variables) {
     if (ast.tags) {
         for (const tag of ast.tags) {
             for (const [key, value] of Object.entries(tag.args)) {
-                Object.defineProperty(tag.args, key, {
-                    get: () => replaceReferences(value, variables).value,
-                    configurable: true
-                })
+                tag.args[key] = replaceReferences(value, variables)
             }
         }
     }
@@ -127,71 +124,6 @@ function replaceReferences(ast, variables) {
     }
 
     return newNode
-}
-
-function getValue(ast, visited) {
-    visited = visited || new Set()
-    if (ast.value !== undefined) {
-        return ast.value
-    }
-
-    if (visited.has(ast)) {
-        return
-    } else {
-        visited.add(ast)
-    }
-
-    if (ast.nodes) {
-        if (typeof(ast.nodes) === "object") {
-            if (Array.isArray(ast.nodes)) {
-                ast.value = ast.nodes.map(n => getValue(n, visited))
-                return ast.value
-            } else {
-                const result = {}
-                for (const [key, value] of Object.entries(ast.nodes)) {
-                    result[key] = getValue(value, visited)
-                }
-                ast.value = result
-                return result
-            }
-        }
-    } else if (ast.value === undefined) {
-        throw new Error(`Unresolved node ${ast.varref}`)
-    } else {
-        return ast.value
-    }
-}
-
-function findVariableDefinitions(ast, variables, visited) {
-    visited = visited || new Set()
-
-    if (visited.has(ast)) {
-        return
-    } else {
-        visited.add(ast)
-    }
-
-    if (ast.vardef) {
-        variables[ast.vardef] = ast
-    }
-
-    if (ast.tags) {
-        for (const tag of ast.tags) {
-            findVariableDefinitions(tag, variables, visited)
-        }
-    }
-
-    if (ast.nodes) {
-        if (Array.isArray(ast.nodes)) {
-            for (const el of ast.nodes) {
-                findVariableDefinitions(el, variables, visited)
-            }
-        } else {
-            for (const value of Object.values(ast.nodes)) {
-                findVariableDefinitions(value, variables, visited)
-            }
-        }
-    }
 }
 
 function resolveTagReferences(tag, variables, visited) {
@@ -229,14 +161,14 @@ function resolveReferences(ast, variables, visited) {
     
     if (ast.nodes && typeof(ast.nodes) === "object") {
         if (Array.isArray(ast.nodes)) {
-            Object.defineProperty(ast, 'value', { get: () => resolveArrayReferences(ast, variables, visited)})
+            Object.defineProperty(ast, 'value', { get: () => resolveArrayReferences(ast, variables, visited), configurable: true})
         } else {
-            Object.defineProperty(ast, 'value', { get: () => resolveObjectReferences(ast, variables, visited)})
+            Object.defineProperty(ast, 'value', { get: () => resolveObjectReferences(ast, variables, visited), configurable: true})
         }
     } else {
         if (ast.varref) {
             const resolved = variables[ast.varref]
-            Object.defineProperty(ast, 'value', { get: () => resolved.value })
+            Object.defineProperty(ast, 'value', { get: () => resolved.value, configurable: true })
         }
     }
 }
