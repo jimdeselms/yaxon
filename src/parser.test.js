@@ -26,6 +26,7 @@ describe("parser", () => {
         testValue("'false'", "false")
         testValue("null", null)
         testValue("'null'", "null")
+        testValue(".", null)
     })
 
     it("array tests", () => {

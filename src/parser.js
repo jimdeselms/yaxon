@@ -47,13 +47,7 @@ class Parser {
                 }
             }
 
-            let node
-            if (this._peek().kind === Kind.DOT) {
-                this._match(Kind.DOT)
-                node = { value: null }
-            } else {
-                node = this.parseTaggedNode()
-            }
+            const node = this.parseTaggedNode()
 
             const tags = node.tags
                 ? [ new YaxonNode({ id: id.value, args: tagArgs }), ...node.tags]
@@ -72,6 +66,7 @@ class Parser {
             case Kind.STRING: return this.parseString()
             case Kind.LEFT_BRACKET: return this.parseArray()
             case Kind.LEFT_BRACE: return this.parseObject()
+            case Kind.DOT: return this.parseNullAbbreviation()
             default: throw new Error(`Unexpected token ${token.text} (${token.kind.toString()})`)
         }
     }
@@ -132,6 +127,11 @@ class Parser {
         this._match(close)
 
         return result
+    }
+
+    parseNullAbbreviation() {
+        this._match(Kind.DOT)
+        return new YaxonNode({ value: null })
     }
 
     _peek(...kinds) {
