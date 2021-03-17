@@ -50,7 +50,7 @@ in the "html" or "a". We could try this:
     }
 
 That's pretty terrible. It's hard to read, hard to type etc. JSON isn't great at representing typed data sctructures very well. In
-addition to that, while JSON is designed to be fast to read and write, it's not actually as easy to read or write as it could be; as a result there are some obvious optimizations that could be made to JSON, but they are omitted to keep the language as dirt simple as
+addition to that, while JSON is designed to be fast to read and write, it's not actually as *easy* to read or write as it could be; as a result there are some obvious optimizations that could be made to JSON, but they are omitted to keep the language as dirt simple as
 possible. JSON doesn't allow comments. JSON requires quotes around every string, and commas after every item in the list, even thought there are no ambiguities that arise in the language as a result.
 
 ## XML to YAML
@@ -85,7 +85,7 @@ describes an email message:
         "format": "text"
     }
 
-Though this is a really straightfowrad example, it's not trivial to represent this in XML:
+Though this is a really straightfoward example, it's not trivial to represent this in XML:
 
     <Email subject="Pizza Party!">
         <To>
@@ -103,7 +103,7 @@ Though this is a really straightfowrad example, it's not trivial to represent th
 This is pretty clunky too, even though the JSON is quite simple. In XML, an element can have attributes (for example,
 "address" or "subject.") But the attributes must always be a scalar type like a string or number. In our JSON document, we have the "to" field, which very easily represents a list of email addresses, but to represent it with a new element type `Email`.
 
-So how does YAXON fix this? YAXON attempts to merge the concepts of XML and Json. Here's how the first XML document above would look:
+So how does YAXON fix this? YAXON attempts to merge the concepts of XML and Json. Here's how the first XML document above would look. Think of it as JSON, but with tags:
 
     @html [
         @body [
@@ -112,9 +112,7 @@ So how does YAXON fix this? YAXON attempts to merge the concepts of XML and Json
         ]
     ]
 
-And how about our email message? That one doesn't need to change at all! Because YAXON is actually just a superset of JSON (at least it's
-supposed to be; I'll write more unit tests to make sure that that's
-true.)
+And how about our email message? That one doesn't need to change at all! Because YAXON is actually just a superset of JSON (at least it's supposed to be; I'll write more unit tests to make sure that that's true.)
 
 ## YAML references
 In addition to making JSON easier to read and write, YAML adds a cool
@@ -158,12 +156,9 @@ read if that's what you're used to:)
     }
 
 ## So what's wrong with YAML?
-YAML has a much breezier syntax; it's much easier to read and write, and it includes comments and references. Why don't we just use it
-for everything?
+YAML has a much breezier syntax; it's much easier to read and write, and it includes comments and references. Why don't we just use it for everything?
 
-First of all, YAML still isn't any better at describing XML-like documents than JSON is. But also, though it's more readable, being
-indentation-sensitive has its own issues; you can easily break a
-YAML document by inserting a space in the wrong place.
+First of all, YAML still isn't any better at describing XML-like documents than JSON is. But also, though it's more readable, being indentation-sensitive has its own issues; you can easily break a YAML document by inserting a space in the wrong place.
 
 ## Intro to YAXON
 
@@ -171,16 +166,22 @@ Since YAXON is a superset of JSON, you can do anything in YAXON that you can do 
 thought hat make it easier to read and write:
 
 * You don't ever need commas (you can still include them if it makes you feel better.)
-* A single-word string never needs to have quotes
-    * Exceptions: if you want a number to be treated as a string, put it in quotes. Likewise, special reserved words (`null`, `true`, `false`) will be treated like their values. If you want them to be treated as strings, wrap them in quotes.
+* You can often omit the quotes on strings:
+    * An unquoted string must begin with a character (or _).
+    * The string may contain alphanumeric characters, and any punctuation that isn't otherwise significant in the
+      language. For example, `This is an awesome/amazing string-thing!` is a valid unquoted YAXON string
+    * You can escape characters in an unquoted string: `This is also a valid \(if not odd\) string\.`.
+    * Some special reserved words must be quotedL `null`, `true`, and `false`. If they are not quoted, they will be treated
+        like their literal values.
+    * Numbers -- if not quoted -- are just treated like numbers.
 
 If we take our email example from above, we can rewrite this in YAXON:
 
     {
-        subject: "Pizza Party!"
+        subject: Pizza Party!
         to: ["fred@yaxmail.com" "steve@yaxmail.com"]
         cc: ["joe@joespizzaria.com"]
-        body: "Hey everybody, come to our pizza party on Saturday!
+        body: "Hey everybody, come to our pizza party on Saturday!"
         format: text
     }
 
@@ -240,6 +241,8 @@ Here is an example of an array filled with legal strings:
         here\'s another one with some escaped characters in it
         "Here's another string"
         'And here\'s another one.'
+        `And here's a multi-line string 
+            for good measure.`
     ]
 
 ### YAXON identifiers

@@ -9,14 +9,16 @@ I think it should, because this saves us a lot of trouble.
 const START_STATE = 0
 const INTEGER_STATE = 1
 const FLOAT_STATE = 2
-const UNQUOTED_STRING_STATE = 3
-const COMMENT_STATE = 4
-const QUOTED_STRING_STATE = 5
-const MULTILINE_STRING_STATE = 6
-const ESCAPED_CHAR_STATE =7
+const BIGINT_STATE = 3
+const UNQUOTED_STRING_STATE = 4
+const COMMENT_STATE = 5
+const QUOTED_STRING_STATE = 6
+const MULTILINE_STRING_STATE = 7
+const ESCAPED_CHAR_STATE = 8
 
 const NUMBER = Symbol.for("NUMBER")
 const STRING = Symbol.for("STRING")
+const BIGINT = Symbol.for("BIGINT")
 const LEFT_PAREN = Symbol.for("(")
 const RIGHT_PAREN = Symbol.for(")")
 const LEFT_BRACE = Symbol.for("{")
@@ -39,6 +41,7 @@ const WHITESPACE = " \r\t\n,"
 const Kind = {
     NUMBER,
     STRING,
+    BIGINT,
     LEFT_PAREN,
     RIGHT_PAREN,
     LEFT_BRACE,
@@ -130,7 +133,10 @@ function* getTokens(text) {
             }
             
             case INTEGER_STATE: {
-                if (char < '0' || char > '9') {
+                if (char === 'n') {
+                    state = BIGINT_STATE
+                    advance = true
+                } else if (char < '0' || char > '9') {
                     yield { kind: NUMBER, text: currToken, value: parseInt(currToken) }
                     currToken = ""
                     state = START_STATE
@@ -154,6 +160,13 @@ function* getTokens(text) {
                     currToken += char
                     advance = true
                 }
+                break
+            }
+
+            case BIGINT_STATE: {
+                yield { kind: BIGINT, text: currToken + "n", value: BigInt(currToken) }
+                currToken = ""
+                state = START_STATE
                 break
             }
 
