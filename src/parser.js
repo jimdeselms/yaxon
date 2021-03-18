@@ -121,9 +121,19 @@ class Parser {
         this._match(open)
 
         while (!(this._peek().kind === close)) {
+            const tags = this.parseTagList()
+
             const key = this._match(Kind.NUMBER, Kind.STRING)
-            this._match(Kind.COLON)
-            const node = this.parseAssignment()
+            const next = this._peek(Kind.COLON, Kind.DOT)
+            let node
+            if (next.kind === Kind.COLON) {
+                this._match(Kind.COLON)
+                node = this.parseAssignment()
+            } else {
+                node = this.parseNullAbbreviation()
+            }
+
+            node.tags = [...tags, ...node.tags || []]
 
             result.push([key.value, node])
         }

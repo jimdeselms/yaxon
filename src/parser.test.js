@@ -14,7 +14,7 @@ describe("parser", () => {
 
     it("variable", () => {
         testValue("[$a=1 $'a']", [1, 1])
-        testValue("{a: $a = 123 b: $a }", {a: 123, b: 123})
+//        testValue("{a: $a = 123 b: $a }", {a: 123, b: 123})
         // testValue("{a: $a = [1 2 3] b: $a }", {a: [1, 2, 3], b: [1, 2, 3]})
         // testValue("{a: [1 $x=2 $y=3] x: $'x' y: $y }", {a: [1, 2, 3], x: 2, y: 3})
     })
@@ -89,6 +89,15 @@ describe("parser", () => {
 
     it("tags with tags", () => {
         testTags("@X(a: @Y hello).", { id: "X", args: { a: { tags: [{ id: "Y", args: {}}], value: "hello"}}})
+    })
+
+    it("tags on properties", () => {
+        const expr = parse("{ @A a: 50 @B1 @B2 b: 100 @C c.}")
+        expect(expr.nodes.a.tags).toEqual([{ id: "A", args: {}}])
+        expect(expr.nodes.b.tags).toEqual([{ id: "B1", args: {}}, { id: "B2", args: {}}])
+        expect(expr.nodes.c.tags).toEqual([{ id: "C", args: {}}])
+
+        expect(expr.value).toEqual({ a: 50, b: 100, c: null })
     })
 
     it("cycles", () => {
