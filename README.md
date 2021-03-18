@@ -162,7 +162,7 @@ First of all, YAML still isn't any better at describing XML-like documents than 
 
 ## Intro to YAXON
 
-Since YAXON is a superset of JSON, you can do anything in YAXON that you can do in Json. There are a few syntactical differences
+Since YAXON is a superset of JSON, you can do anything in YAXON that you can do in JSON. There are a few syntactic differences
 thought hat make it easier to read and write:
 
 * You don't ever need commas (you can still include them if it makes you feel better.)
@@ -171,7 +171,7 @@ thought hat make it easier to read and write:
     * The string may contain alphanumeric characters, and any punctuation that isn't otherwise significant in the
       language. For example, `This is an awesome/amazing string-thing!` is a valid unquoted YAXON string
     * You can escape characters in an unquoted string: `This is also a valid \(if not odd\) string\.`.
-    * Some special reserved words must be quotedL `null`, `true`, and `false`. If they are not quoted, they will be treated
+    * Some special reserved words must be quoted: `null`, `true`, and `false`. If they are not quoted, they will be treated
         like their literal values.
     * Numbers -- if not quoted -- are just treated like numbers.
 
@@ -191,6 +191,7 @@ A YAXON document has one single root node. A YAXON node has these possible types
 * Boolean (`true` or `false`)
 * Number
 * Array
+* BigInt
 * Object (map)
 * `null`
 
@@ -222,6 +223,32 @@ Tags don't even have to be assigned to a value. You can either do this by assign
     @JustATag null
 
     @AlsoJustATag.
+
+#### More about converting XML to YAXON
+
+YAXON tags are the most straightforward way to represent an XML-style structure.
+
+You can map any XML structure directly into YAXON by following these rules:
+
+* Element names become tag names
+* An elements attributes become arguments to the tag
+* The tag's children are represented as a an array of nodes following the tag
+
+Consider this example:
+
+    <Element attr1="123" attr2="hello">
+        Hello
+        <hr/>
+        Goodbye
+    </Element>
+
+This converts directly to:
+
+    @Element(attr1: 123, attr2: hello) [
+        Hello
+        @hr.
+        Goodbye
+    ]
 
 #### Defining tags on objects/maps
 
@@ -312,7 +339,7 @@ can still use quotes:
 
     const object = YAXON.parse(yaxonString)
 
-# Tags are sweet
+# Tags for defining aspects
 
 We've seen that tags can be used to model XML-style data. We can also use tags to separate out different aspects of our
 data. You could imagine using YAXON to define a very simple schema of fields and values.
