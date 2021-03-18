@@ -223,6 +223,50 @@ Tags don't even have to be assigned to a value. You can either do this by assign
 
     @AlsoJustATag.
 
+#### Defining tags on objects/maps
+
+There are two allowed syntaxes for tagging the fields on an object.
+
+Technically, you're tagging the *object* that the field references, not the field itself.
+
+So, intuitively, you can do this:
+
+    {
+        family: The Smiths
+        familyPet: @Pet(owner: Billy) @Dog(breed: Husky) {
+            name: Fido
+        }
+    }
+
+This looks a little clunky. This syntax is also supported, with the field's tags *before*
+the key:
+
+    {
+        family: The Smiths
+
+        @Pet(owner: Billy)
+        @Dog(breed: Husky)
+        familyPet: {
+            name: Fido
+        }
+    }
+
+In this version, we can stack up the tags, making it a bit easier to read.
+
+In the previous section, we learned that there's a syntactic convenience for tagging null (`@Tag.`). You
+can also tag null in an object like this:
+
+    {
+        name: Steve
+
+        @Tag
+        familyPet.       
+    }
+
+In addition to a syntactic convenience for tagging `null` (instead of `@Tag: null`, you can do `@Tag.`)
+
+
+
 ## YAXON strings
 In YAXON, you can always wrap strings in single quotes (') or double quotes ("). 
 
@@ -267,3 +311,54 @@ can still use quotes:
     const yaxonString = YAXON.stringify({ name: "Fred" })
 
     const object = YAXON.parse(yaxonString)
+
+# Tags are sweet
+
+We've seen that tags can be used to model XML-style data. We can also use tags to separate out different aspects of our
+data. You could imagine using YAXON to define a very simple schema of fields and values.
+
+    {
+        person: {
+            ssn.
+            employer.
+            address: {
+                street.
+                zipCode.
+            }
+        }
+
+        employer: {
+            id.
+            name.
+        }
+    }
+
+I can also use tags to hang different aspects of data on that simple framework. Here's an example that shows how we might represent
+various database and security concerns:
+
+    {
+        @Table(tableName: person_table)
+        person: {
+            ssn: @Secret @PrimaryKey.
+
+            @NotifyOnChange(email: "fred@fredco.com")
+            employer: @TableRef(tableName: employer_table).
+            address: {
+                street.
+                zipCode.
+            }
+        }
+
+        @Table(tableName: employer_table)
+        employer: {
+            id.
+            name.
+        }
+    }
+
+In this example, we tag `person` and `employer` with a `@Table` tag, which tells us the name of the database table. We have the `ssn` field marked
+`@Secret` which might mean that it's not displayed on the screen, or perhaps it means that only certain users have permission to see it. Or,
+if a person's employer changes, we use the `@NotifyOnChange` tag to indicate who should get an email if that happens.
+
+Of course we an model all of this in JSON or XML. But tags give you just a different dimension of expressiveness in your document that probably
+has other applications I haven't thought of.
