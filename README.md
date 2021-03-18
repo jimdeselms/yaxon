@@ -421,5 +421,5 @@ In this example, we tag `person` and `employer` with a `@Table` tag, which tells
 `@Secret` which might mean that it's not displayed on the screen, or perhaps it means that only certain users have permission to see it. Or,
 if a person's employer changes, we use the `@NotifyOnChange` tag to indicate who should get an email if that happens.
 
-Of course we an model all of this in JSON or XML. But tags give you just a different dimension of expressiveness in your document that probably
+Of course we can model all of this in JSON or XML. But tags can make your document a lot cleaner, and they just give a different dimension of expressiveness that probably 
 has other applications I haven't thought of.
