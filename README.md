@@ -337,7 +337,41 @@ can still use quotes:
 
     const yaxonString = YAXON.stringify({ name: "Fred" })
 
-    const object = YAXON.parse(yaxonString)
+    const doc = YAXON.parse(yaxonString)
+
+Once you've got the document, you can access the document --
+minus tags -- using the value property:
+
+    const doc = YAXON.parse("{ name: Fred Wilkerson }")
+
+    expect(doc.value.name).toBe("Fred Wilkerson")
+
+Here is the schema for the result of YAXON.parse (Typescript-style):
+
+    interface Node<T> {
+        tags: Tag[]
+        value: T
+    }
+
+    interface Tag {
+        id: string
+        args: Record<string, AnyNode>
+    }
+
+    type AnyNode = Node<any>
+    type StringNode = Node<string>
+    type NumberNode = Node<number>
+    type BigintNode = Node<bigint>
+    type BooleanNode = Node<boolean>
+    type NullNode = Node<null>
+
+    interface ObjectNode extends Node<{}> {
+        nodes: Record<string, AnyNode>
+    }
+
+    interface ArrayNode extends Node<[]> {
+        nodes: AnyNode[]
+    }
 
 # Tags for defining aspects
 
