@@ -112,15 +112,15 @@ So how does YAXON fix this? YAXON attempts to merge the concepts of XML and Json
         ]
     ]
 
-And how about our email message? That one doesn't need to change at all! Because YAXON is actually just a superset of JSON (at least it's supposed to be; I'll write more unit tests to make sure that that's true.)
+And how about our email message? That one doesn't need to change at all, because YAXON is actually just a superset of JSON (at least it's supposed to be; I'll write more unit tests to make sure that that's true.)
 
 ## YAML references
-In addition to making JSON easier to read and write, YAML adds a cool
+In addition to making JSON easier to read and write, YAML adds a cool 
 feature that doesn't exist in XML or JSON: references.
 
 References allow you to define a structure once in your document and
 then reference it elsewhere. That way, you can avoid sending extra
-data over the wire, but also gives you a way to define cyclic 
+data over the wire, but it also gives you a way to define cyclic 
 data structures.
 
 In this YAML document, if three people all live at the same house, we can define the address once, and then reference it repeatedly:
@@ -163,7 +163,7 @@ First of all, YAML still isn't any better at describing XML-like documents than 
 ## Intro to YAXON
 
 Since YAXON is a superset of JSON, you can do anything in YAXON that you can do in JSON. There are a few syntactic differences
-thought hat make it easier to read and write:
+though that make it easier to read and write:
 
 * You don't ever need commas (you can still include them if it makes you feel better.)
 * You can often omit the quotes on strings:
