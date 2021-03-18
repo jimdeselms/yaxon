@@ -35,27 +35,31 @@ class Parser {
     }
 
     parseTaggedNode() {
-        const token = this._peek(Kind.AT_SIGN, Kind.NUMBER, Kind.STRING, Kind.LEFT_BRACKET, Kind.LEFT_BRACE)
-        if (token.kind === Kind.AT_SIGN) {
-            this._match(Kind.AT_SIGN)
-            const id = this._match(Kind.STRING)
+        const tagList = this.parseTagList()
+        const node = this.parseNode()
 
-            const tagArgs = {}
-            if (this._peek().kind === Kind.LEFT_PAREN) {
-                for (const [key, node] of this.parseKeyValuePairs(Kind.LEFT_PAREN, Kind.RIGHT_PAREN)) {
-                    tagArgs[key] = node
+        return new YaxonNode({ ...node, tags: tagList })
+    }
+
+    parseTagList() {
+        const tags = []
+
+        while (true) {
+            const token = this._peek(Kind.AT_SIGN, Kind.NUMBER, Kind.STRING, Kind.LEFT_BRACKET, Kind.LEFT_BRACE)
+            if (token.kind === Kind.AT_SIGN) {
+                this._match(Kind.AT_SIGN)
+                const id = this._match(Kind.STRING)
+
+                const args = {}
+                if (this._peek().kind === Kind.LEFT_PAREN) {
+                    for (const [key, node] of this.parseKeyValuePairs(Kind.LEFT_PAREN, Kind.RIGHT_PAREN)) {
+                        args[key] = node
+                    }
                 }
+                tags.push(new YaxonNode({ id: id.value, args }))
+            } else {
+                return tags
             }
-
-            const node = this.parseTaggedNode()
-
-            const tags = node.tags
-                ? [ new YaxonNode({ id: id.value, args: tagArgs }), ...node.tags]
-                : [ new YaxonNode({ id: id.value, args: tagArgs }) ]
-
-            return new YaxonNode({ ...node, tags })
-        } else {
-            return this.parseNode()
         }
     }
 

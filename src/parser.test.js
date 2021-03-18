@@ -60,8 +60,8 @@ describe("parser", () => {
     })
 
     it("tags with args", () => {
-        testTags("@X(name: 'fred') 123", { id: "X", args: { name: { value: "fred"} }})
-        testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { value: 1} }}, { id: "multiple2", args: {}})
+        testTags("@X(name: 'fred') 123", { id: "X", args: { name: { tags: [], value: "fred"} }})
+        testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { tags: [], value: 1} }}, { id: "multiple2", args: {}})
     })
 
     it("tag with nested argument", () => {
@@ -74,17 +74,17 @@ describe("parser", () => {
         testTags("@X.", { id: "X", args: {}})
         testValue("@X.", null)
 
-        testTags("@X(name: fred).", { id: "X", args: {name: { value: "fred"}}})
+        testTags("@X(name: fred).", { id: "X", args: {name: { tags: [], value: "fred"}}})
         testValue("@X(name: fred).", null)
     })
 
     it("quoted tag and argument", () => {
         testTags("@'Big Tag Name'('tag arg': 123).", 
-            { id: "Big Tag Name", args: {"tag arg": { value: 123 }}})
+            { id: "Big Tag Name", args: {"tag arg": { tags: [], value: 123 }}})
     })
 
     it("tag defining variable", () => {
-        testTags("@X(a: $a b: $a = 5).", { id: "X", args: { a: { value: 5}, b: {value: 5} }})
+        testTags("@X(a: $a b: $a = 5).", { id: "X", args: { a: { tags: [], value: 5}, b: { tags: [], value: 5} }})
     })
 
     it("tags with tags", () => {
