@@ -365,11 +365,11 @@ Here is the schema for the result of YAXON.parse (Typescript-style):
     type BooleanNode = Node<boolean>
     type NullNode = Node<null>
 
-    interface ObjectNode extends Node<{}> {
+    interface ObjectNode extends Node<Object> {
         nodes: Record<string, AnyNode>
     }
 
-    interface ArrayNode extends Node<[]> {
+    interface ArrayNode extends Node<any[]> {
         nodes: AnyNode[]
     }
 

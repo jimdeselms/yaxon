@@ -67,6 +67,28 @@ describe("lexer", () => {
         testTokens("`this is a test\nthis is only a test`", { value: "this is a test\nthis is only a test"})
     })
 
+    it("numbers", () => {
+        testTokens("3.14159", { value: 3.14159, kind: lexer.Kind.NUMBER })
+        testTokens("-3.14159", { value: -3.14159 })
+        testTokens("+3.14159", { value: 3.14159 })
+        testTokens("3e10", { value: 3e10 })
+        testTokens("3.14e10", { value: 3.14e10 })
+        testTokens("3.14E10", { value: 3.14e10 })
+        testTokens("3.14E-10", { value: 3.14e-10 })
+        testTokens("3.14E+10", { value: 3.14e+10 })
+        testTokens("0", { value: 0 })
+
+        // Did you know that "00" is not valid JSON?
+        testTokens("000000", { value: 0 })
+    })
+
+    it("escaped chars", () => {
+        testTokens("'a\\nb'", { value: "a\nb" })
+        testTokens("a\\nb", { value: "a\nb" })
+        testTokens("a\\nb\\nc", { value: "a\nb\nc"})
+        testTokens("smile\\u9999", "smile\u9999")
+    })
+
 })
 
 function testTokens(text, ...expected) {

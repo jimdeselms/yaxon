@@ -9,12 +9,15 @@ I think it should, because this saves us a lot of trouble.
 const START_STATE = 0
 const INTEGER_STATE = 1
 const FLOAT_STATE = 2
-const BIGINT_STATE = 3
-const UNQUOTED_STRING_STATE = 4
-const COMMENT_STATE = 5
-const QUOTED_STRING_STATE = 6
-const MULTILINE_STRING_STATE = 7
-const ESCAPED_CHAR_STATE = 8
+const EXPONENT_STATE = 3
+const EXPONENT_VALUE_STATE = 4
+const BIGINT_STATE = 5
+const UNQUOTED_STRING_STATE = 6
+const COMMENT_STATE = 7
+const QUOTED_STRING_STATE = 8
+const MULTILINE_STRING_STATE = 9
+const ESCAPED_CHAR_STATE = 10
+const ESCAPED_HEX_CHAR_STATE = 11
 
 const NUMBER = Symbol.for("NUMBER")
 const STRING = Symbol.for("STRING")
@@ -69,6 +72,7 @@ function* getTokens(text) {
     let stringTerm
     let allowSpaceInUnquotedString = true
     let stateAfterEscape
+    let hexCharCount = 0
 
     while (!endCharRead) {
         if (advance) {
@@ -92,7 +96,7 @@ function* getTokens(text) {
 
         switch (state) {
             case START_STATE: {
-                if (char === '-' || (char >= '0' && char <= '9')) {
+                if (char === '-' || char === '+' || (char >= '0' && char <= '9')) {
                     currToken += char
                     state = INTEGER_STATE
                     advance = true
@@ -109,6 +113,10 @@ function* getTokens(text) {
                 } else if ((char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || char === "_") {
                     currToken += char
                     state = UNQUOTED_STRING_STATE
+                    advance = true
+                } else if (char === '\\') {
+                    currToken += char
+                    state = 
                     advance = true
                 } else if (char === '"' || char === "'") {
                     state = QUOTED_STRING_STATE
@@ -136,14 +144,18 @@ function* getTokens(text) {
                 if (char === 'n') {
                     state = BIGINT_STATE
                     advance = true
-                } else if (char < '0' || char > '9') {
-                    yield { kind: NUMBER, text: currToken, value: parseInt(currToken) }
-                    currToken = ""
-                    state = START_STATE
                 } else if (char === '.') {
                     currToken += '.'
                     state = FLOAT_STATE
                     advance = true
+                } else if (char === 'e' || char === 'E') {
+                    currToken += char
+                    state = EXPONENT_STATE
+                    advance = true
+                } else if (char !== 'e' && char !== 'E' && (char < '0' || char > '9')) {
+                    yield { kind: NUMBER, text: currToken, value: parseInt(currToken) }
+                    currToken = ""
+                    state = START_STATE
                 } else {
                     currToken += char
                     advance = true
@@ -152,6 +164,34 @@ function* getTokens(text) {
             }
 
             case FLOAT_STATE: {
+                if (char === 'e' || char === 'E') {
+                    currToken += char
+                    state = EXPONENT_STATE
+                    advance = true
+                } else if (char < '0' || char > '9') {
+                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
+                    currToken = ""
+                    state = START_STATE
+                } else {
+                    currToken += char
+                    advance = true
+                }
+                break
+            }
+
+            case EXPONENT_STATE: {
+                if (char !== '-' && char !== '+' && (char < '0' || char > '9')) {
+                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
+                    currToken = ""
+                    state = START_STATE
+                } else {
+                    currToken += char
+                    advance = true
+                }
+                break
+            }
+
+            case EXPONENT_VALUE_STATE: {
                 if (char < '0' || char > '9') {
                     yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
                     currToken = ""
@@ -228,9 +268,33 @@ function* getTokens(text) {
             }
 
             case ESCAPED_CHAR_STATE: {
+
+                if (char === 'u') {
+                    hexCharCount = 0
+                    state = ESCAPED_HEX_CHAR_STATE
+                    currToken += '\\'
+                    advance = true
+                    break
+                }
+                switch (char) {
+                    case 'n': currToken += '\n'; break
+                    case 't': currToken += '\t'; break
+                    case 'b': currToken += '\b'; break
+                    case 'r': currToken += '\n'; break
+                    case 'f': currToken += '\f'; break
+                    default: currToken += char; break
+                }
                 advance = true
-                currToken += char
                 state = stateAfterEscape
+                break
+            }
+
+            case ESCAPED_HEX_CHAR_STATE: {
+                currToken += char
+                advance = true
+                if (++hexCharCount === 4) {
+                    state = stateAfterEscape
+                }
                 break
             }
 
