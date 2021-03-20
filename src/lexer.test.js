@@ -79,7 +79,7 @@ describe("lexer", () => {
         testTokens("0", { value: 0 })
 
         // Did you know that "00" is not valid JSON?
-        testTokens("000000", { value: 0 })
+        testTokens("00", { value: 0 })
     })
 
     it("escaped chars", () => {
@@ -88,7 +88,6 @@ describe("lexer", () => {
         testTokens("a\\nb\\nc", { value: "a\nb\nc"})
         testTokens("smile\\u9999", "smile\u9999")
     })
-
 })
 
 function testTokens(text, ...expected) {
