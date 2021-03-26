@@ -37,8 +37,9 @@ const DOT = Symbol.for(".")
 const EOF = Symbol.for("EOF")
 
 const ALLOWED_PUNCTUATION = "()[]{}:$=;@."
-const UNQUOTED_MULTI_WORD_STRING_TERMINATORS = "`()[]{}:$=;@.#$=@,\n\r\0"
-const UNQUOTED_SINGLE_WORD_STRING_TERMINATORS = UNQUOTED_MULTI_WORD_STRING_TERMINATORS + " \t"
+const COMMON_TERMINATORS = "`()[]{}$=;@.#$=@,\n\r\0"
+const UNQUOTED_MULTI_WORD_STRING_TERMINATORS = COMMON_TERMINATORS + ":"
+const UNQUOTED_SINGLE_WORD_STRING_TERMINATORS = COMMON_TERMINATORS + " \t"
 const WHITESPACE = " \r\t\n,"
 
 const Kind = {
@@ -216,7 +217,7 @@ function* getTokens(text) {
                     : UNQUOTED_SINGLE_WORD_STRING_TERMINATORS
 
                 if (terminators.includes(char)) {
-                    // Unquoted strings must be trimmed. If leading/trailing spaces are 
+                    // Unquoted will must be trimmed. If leading/trailing spaces are 
                     // necessary, use quotes.
                     yield { kind: STRING, text: currToken.trim(), value: currToken.trim() }
                     currToken = ""

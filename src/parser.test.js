@@ -64,6 +64,10 @@ describe("parser", () => {
         testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { tags: [], value: 1} }}, { id: "multiple2", args: {}})
     })
 
+    // it("tag with prefix", () => {
+    //     testTags("@abc:def", { id: "abc:def" })
+    // })
+
     it("tag with nested argument", () => {
         const expr = parse("@X(a: { b: [c] }).")
         expect(expr.tags[0].id).toEqual("X")
