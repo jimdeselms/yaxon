@@ -8,15 +8,15 @@ describe("parser", () => {
 
     it("string", () => {
         testValue("hello world how are you", "hello world how are you")
-//        testValue('"quoted string"', "quoted string")
-  //      testValue("'quoted string'", "quoted string")
+        testValue('"quoted string"', "quoted string")
+        testValue("'quoted string'", "quoted string")
     })
 
     it("variable", () => {
         testValue("[$a=1 $'a']", [1, 1])
-//        testValue("{a: $a = 123 b: $a }", {a: 123, b: 123})
-        // testValue("{a: $a = [1 2 3] b: $a }", {a: [1, 2, 3], b: [1, 2, 3]})
-        // testValue("{a: [1 $x=2 $y=3] x: $'x' y: $y }", {a: [1, 2, 3], x: 2, y: 3})
+        testValue("{a: $a = 123 b: $a }", {a: 123, b: 123})
+        testValue("{a: $a = [1 2 3] b: $a }", {a: [1, 2, 3], b: [1, 2, 3]})
+        testValue("{a: [1 $x=2 $y=3] x: $'x' y: $y }", {a: [1, 2, 3], x: 2, y: 3})
     })
 
     it("special strings", () => {
@@ -64,9 +64,9 @@ describe("parser", () => {
         testTags("@multiple1(a:1) @multiple2 hello", { id: "multiple1", args: {a: { tags: [], value: 1} }}, { id: "multiple2", args: {}})
     })
 
-    // it("tag with prefix", () => {
-    //     testTags("@abc:def", { id: "abc:def" })
-    // })
+    it("tag with prefix", () => {
+        testTags("@abc:def.", { id: "abc:def", args: {} })
+    })
 
     it("tag with nested argument", () => {
         const expr = parse("@X(a: { b: [c] }).")
