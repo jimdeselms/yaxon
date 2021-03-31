@@ -1,19 +1,11 @@
 // Links together the references in the file.
-
-function linkReferencesnew(ast, variables) {
-    const result = {}
-    variables = variables || {}
-
-}
-
 function linkReferences(ast) {
     const variables = {}
 
-    // findVariableDefinitions(ast, variables)
-//    fillVariableReferences(ast, variables)
-
     const newAst = findVariables(ast, variables)
     const result = replaceReferences(newAst, variables)
+
+    applyAmendments(result, variables)
 
     return result
 }
@@ -52,6 +44,9 @@ function findVariables(ast, variables) {
         }
     } else {
         newNode = { value: ast.value }
+        if (ast.amend) {
+            newNode.amend = ast.amend
+        }
     }
 
     if (ast.tags) {
@@ -60,6 +55,10 @@ function findVariables(ast, variables) {
 
     if (ast.vardef) {
         variables[ast.vardef] = newNode
+    }
+
+    if (ast.amendments) {
+        newNode.amendments = (ast.amendments || []).map(a => findVariables(a, variables))
     }
 
     return newNode
@@ -123,7 +122,25 @@ function replaceReferences(ast, variables) {
         }
     }
 
+    if (ast.amendments) {
+        newNode.amendments = ast.amendments.map(a => replaceReferences(a, variables))
+    }
+
     return newNode
+}
+
+function applyAmendments(ast, variables) {
+
+    for (const amendment of ast.amendments) {
+        const node = variables[amendment.amend]
+        if (node) {
+            for (const tag of amendment.tags) {
+                node.tags.push(tag)
+            }
+        }
+    }
+
+    delete ast.amendments
 }
 
 function resolveTagReferences(tag, variables, visited) {

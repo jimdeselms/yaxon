@@ -293,6 +293,45 @@ can also tag null in an object like this:
 In addition to a syntactic convenience for tagging `null` (instead of `@Tag: null`, you can do `@Tag.`)
 
 
+## YAXON variables
+In YAXON, you can use variables to repeat snippets of your document. You can also use them to add tags to a node in the document without actually finding
+that node and modifying it. You might have a very large document that defines a node deep in its structure, and for clarity's sake, you might define
+its tags in multiple places in the document. If you use a library that allows you to read in multiple documents, this can give you a method of 
+merging multiple disparate domains into one large document.
+
+Define variables like this:
+
+    $newtonZip = 02465
+
+And reference a variable like this:
+
+    {
+        name: Fred
+        city: Newton
+        zip code: $newtonZip
+    }
+
+**Note:** Variables must be unique throughout the document. Consider using some kind of prefix to namespace your tags.
+### Amending nodes
+
+You can use variables to add more tags to a node defined elsewhere in your document.
+
+Let's say you have a document that defines a very deep structure:
+
+    {
+        ...
+            {
+                address.
+                city.
+                $zipCode = zip code.
+            }
+
+    @DisplayName(name: Zip Code)
+    $zipCode.
+
+or:
+
+    $zipCode: @DisplayName(name: Zip Code).
 
 ## YAXON strings
 In YAXON, you can always wrap strings in single quotes (') or double quotes ("). 

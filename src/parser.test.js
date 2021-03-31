@@ -12,11 +12,16 @@ describe("parser", () => {
         testValue("'quoted string'", "quoted string")
     })
 
-    it("variable", () => {
+    it("variables", () => {
         testValue("[$a=1 $'a']", [1, 1])
         testValue("{a: $a = 123 b: $a }", {a: 123, b: 123})
         testValue("{a: $a = [1 2 3] b: $a }", {a: [1, 2, 3], b: [1, 2, 3]})
         testValue("{a: [1 $x=2 $y=3] x: $'x' y: $y }", {a: [1, 2, 3], x: 2, y: 3})
+    })
+
+    it("variable used for amending", () => {
+//        testValue("@X $foo. $foo = 123", 123)
+        testTags("@X $foo. $foo = 123", { id: "X", args: {}})
     })
 
     it("special strings", () => {

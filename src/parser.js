@@ -6,7 +6,7 @@ const Kind = lexer.Kind
 
 function parse(text) {
     const p = new Parser(text)
-    const ast = p.parseAssignment()
+    const ast = p.parseDocument()
 
     return linkReferences(ast)
  }
@@ -17,28 +17,58 @@ class Parser {
         this.itState = this.tokens.next()
     }
 
-    parseAssignment() {
+    parseDocument() {
+        let amend = true
+        let result
+        const amendments = []
+
+        while (this._peek().kind !== Kind.EOF) {
+            const node = this.parseAssignment(amend)
+            if (node.amend) {
+                amend = false
+                amendments.push(node)
+            } else {
+                result = node
+            }
+        }
+
+        return { ...result, amendments }
+    }
+
+    parseAssignment(amend) {
         const token = this._peek(Kind.DOLLAR, Kind.NUMBER, Kind.STRING, Kind.LEFT_BRACKET, Kind.LEFT_BRACE)
         if (token.kind == Kind.DOLLAR) {
             this._match(Kind.DOLLAR)
             const id = this._match(Kind.STRING)
             if (this._peek().kind === Kind.EQUALS) {
                 this._match(Kind.EQUALS)
-                const node = this.parseTaggedNode()
+                const node = this.parseTaggedNode(false)
                 return new YaxonNode({ ...node, vardef: id.value })
+            } else if (amend && this._peek().kind === Kind.COLON) {
+                this._match(Kind.COLON)
+                const node = this.parseTaggedNode(false)
+                return new YaxonNode({ ...node, amend: id.value })
+            } else if (this._peek().kind === Kind.DOT) {
+                this._match(Kind.DOT)
+                return new YaxonNode({ value: null, amend: id.value })
             } else {
                 return new YaxonNode({ varref: id.value })
             }
         } else {
-            return this.parseTaggedNode()
+            return this.parseTaggedNode(amend)
         }
     }
 
-    parseTaggedNode() {
+    parseTaggedNode(amend) {
         const tagList = this.parseTagList()
-        const node = this.parseNode()
+        const node = this.parseNode(amend)
 
-        return new YaxonNode({ ...node, tags: tagList })
+        if (amend && node.varref && this._peek().kind === Kind.DOT) {
+            this._match(Kind.DOT)
+            return new YaxonNode({ tags: tagList, amend: node.varref })
+        } else {
+            return new YaxonNode({ ...node, tags: tagList })
+        }
     }
 
     parseTagList() {
@@ -63,8 +93,14 @@ class Parser {
         }
     }
 
-    parseNode() {
+    parseNode(amend) {
         const token = this._peek(Kind.NUMBER, Kind.STRING, Kind.LEFT_BRACKET, Kind.LEFT_BRACE)
+
+        if (amend && token.kind === Kind.DOLLAR) {
+            this._match(Kind.DOLLAR)
+            const id = this._match(Kind.STRING)
+            return new YaxonNode({ varref: id.value })
+        }
         switch (token.kind) {
             case Kind.NUMBER: return this.parseNumber()
             case Kind.STRING: return this.parseString()
