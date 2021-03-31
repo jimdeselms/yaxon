@@ -20,7 +20,7 @@ describe("parser", () => {
     })
 
     it("variable used for amending", () => {
-//        testValue("@X $foo. $foo = 123", 123)
+        testValue("@X $foo. $foo = 123", 123)
         testTags("@X $foo. $foo = 123", { id: "X", args: {}})
     })
 
