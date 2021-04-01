@@ -159,14 +159,50 @@ class Parser {
         while (!(this._peek().kind === close)) {
             const tags = this.parseTagList()
 
-            const key = this._match(Kind.NUMBER, Kind.STRING)
-            const next = this._peek(Kind.COLON, Kind.DOT)
-            let node
-            if (next.kind === Kind.COLON) {
-                this._match(Kind.COLON)
-                node = this.parseAssignment()
+            // This is a shorthand for a variable definition.
+            // Instead of saying
+            //   { x: $x = 123 }
+            // you can say
+            //   { $x = 123 }
+            //
+            // Also, instead of 
+            //   { x. }
+            // you can say
+            //   { $x. }
+            const isVardef = this._peek().kind === Kind.DOLLAR
+            let key, node
+            if (isVardef) {
+                this._match(Kind.DOLLAR)
+                key = this._match(Kind.STRING)
+                const next = this._peek(Kind.EQUALS, Kind.DOT)
+                if (next.kind === Kind.EQUALS) {
+                    this._match(Kind.EQUALS)
+                    node = this.parseAssignment()
+                } else {
+                    node = this.parseNullAbbreviation()
+                }
             } else {
-                node = this.parseNullAbbreviation()
+                key = this._match(Kind.NUMBER, Kind.STRING)
+                const next = this._peek(Kind.COLON, Kind.DOT)
+                if (next.kind === Kind.COLON) {
+                    this._match(Kind.COLON)
+                    node = this.parseAssignment()
+                } else {
+                    node = this.parseNullAbbreviation()
+                }
+            }
+
+            // const next = this._peek(Kind.COLON, Kind.DOT)
+            // let node
+            // if (next.kind === Kind.COLON) {
+            //     this._match(Kind.COLON)
+            //     node = this.parseAssignment()
+            // } else {
+            //     node = this.parseNullAbbreviation()
+            // }
+
+            if (isVardef) {
+                node.vardef = key.value
             }
 
             node.tags = [...tags, ...node.tags || []]

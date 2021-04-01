@@ -19,9 +19,17 @@ describe("parser", () => {
         testValue("{a: [1 $x=2 $y=3] x: $'x' y: $y }", {a: [1, 2, 3], x: 2, y: 3})
     })
 
+    it("variable def shorthand", () => {
+        testValue("[{$a = 5} $a]", [{a: 5}, 5])
+        testValue("[{$a.} $a]", [{a: null}, null])
+    })
+
     it("variable used for amending", () => {
-        testValue("@X $foo. $foo = 123", 123)
-        testTags("@X $foo. $foo = 123", { id: "X", args: {}})
+        const result = parse("@Y @X $foo. { data: { number: $foo = 123 }}")
+        expect(result.nodes["data"].nodes["number"].value).toBe(123)
+        expect(result.nodes["data"].nodes["number"].tags.length).toBe(2)
+        expect(result.nodes["data"].nodes["number"].tags[0].id).toBe("Y")
+        expect(result.nodes["data"].nodes["number"].tags[1].id).toBe("X")
     })
 
     it("special strings", () => {
