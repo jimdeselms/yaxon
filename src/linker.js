@@ -95,6 +95,9 @@ function replaceReferences(ast, variables) {
     let newNode = ast
 
     if (ast.varref) {
+        if (variables[ast.varref] === undefined) {
+            throw new Error("Unknown variable $" + ast.varref)
+        }
         return variables[ast.varref]
     }
 

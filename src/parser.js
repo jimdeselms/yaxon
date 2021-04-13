@@ -1,12 +1,18 @@
 const lexer = require('./lexer')
+const { join } = require('./join')
 const { linkReferences } = require("./linker")
 const YaxonNode = require('./YaxonNode')
 
 const Kind = lexer.Kind
 
-function parse(text) {
-    const p = new Parser(text)
-    const ast = p.parseDocument()
+function parse(...texts) {
+    let ast = null
+
+    for (const text of texts) {
+        const p = new Parser(text)
+        const newAst = p.parseDocument()
+        ast = join(ast, newAst)
+    }
 
     return linkReferences(ast)
  }

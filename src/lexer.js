@@ -1,11 +1,3 @@
-/*
-
-Should the lexer be able to know that it's inside an object?
-
-I think it should, because this saves us a lot of trouble.
-
-*/
-
 const START_STATE = 0
 const INTEGER_STATE = 1
 const FLOAT_STATE = 2
