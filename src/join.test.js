@@ -3,13 +3,18 @@ const { join } = require('./join')
 
 describe("join", () => {
     test("object join", () => {
-        const node = parse("{ a: 1 }", "{ b: 2 }")
+        const node = parse("{ a: 1 c: { foo: [bar] } }", "{ b: 2 c: { foo: [baz] } }")
 
         expect(node).toMatchObject({ 
             tags: [],
             nodes: {
-                a: { tags: [], value: 1 },
-                b: { tags: [], value: 2 }
+                a: { value: 1 },
+                b: { value: 2 },
+                c: { nodes: {
+                    foo: {
+                        nodes: [ { value: 'bar' }, { value: 'baz' }]
+                    }
+                }}
             }
         })
     })
@@ -30,10 +35,22 @@ describe("join", () => {
     })
 
     test("join varref and vardef", () => {
-        const node = parse("$x = Hello", "$x")
+        expect(parse("$x = Hello", "$x")).toMatchObject(
+            {
+                value: "Hello"
+            })
 
-        expect(node).toMatchObject({
-            value: "Hello"
-        })
+        expect(parse("$x", "$x = Hello")).toMatchObject(
+            {
+                value: "Hello"
+            })
+    })
+
+    test("cross-file amendment", () => {
+        expect(parse("$x = Hello", "@Hello $x.")).toMatchObject(
+            {
+                tags: [ { id: "Hello" }],
+                value: "Hello"
+            })
     })
 })

@@ -17,7 +17,10 @@ function join(node1, node2) {
 
     const result = joinNodes(node1, node2)
 
-    result.amendments = [...node1.amendments || [], node2.amendments || []]
+    result.amendments = [
+        ...(node1.amendments || []), 
+        ...(node2.amendments || [])
+    ]
 
     return result
 }
@@ -44,6 +47,18 @@ function joinNodes(node1, node2) {
     if (node1.nodes && node2.nodes) {
         const nodes = joinObjectsOrArrays(node1.nodes, node2.nodes)
         result.nodes = nodes
+    } else if (node1.value !== undefined && node1.value !== null) {
+        if ([null, undefined, node1.value].includes(node2.value)) {
+            result.value = node1.value
+        } else {
+            throw new Error("Cannot merge two scalar values")
+        }
+    } else if (node2.value !== undefined && node2.value !== null) {
+        if ([null, undefined, node1.value].includes(node1.value)) {
+            result.value = node2.value
+        } else {
+            throw new Error("Cannot merge two scalar values")
+        }
     } else if (node1.value !== undefined && node1.value !== null && node2.value !== undefined && node2.value !== undefined) {
         if (node1.value !== node2.value) {
             throw new Error("Cannot merge two different values")

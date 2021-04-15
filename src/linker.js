@@ -58,7 +58,12 @@ function findVariables(ast, variables) {
     }
 
     if (ast.amendments) {
-        newNode.amendments = (ast.amendments || []).map(a => findVariables(a, variables))
+        const newAmendments = []
+
+        for (const curr of ast.amendments || []) {
+            newAmendments.push(findVariables(curr, variables))
+        }
+        newNode.amendments = newAmendments
     }
 
     return newNode
