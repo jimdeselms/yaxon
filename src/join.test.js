@@ -47,19 +47,18 @@ describe("join", () => {
     })
 
     test("cross-file amendment", () => {
-        // expect(parse("$x = Hello", "@Hello $x.")).toMatchObject(
-        //     {
-        //         tags: [ { id: "Hello" }],
-        //         value: "Hello"
-        //     })
+        expect(parse("$x = Hello", "@Hello $x.")).toMatchObject(
+            {
+                tags: [ { id: "Hello" }],
+                value: "Hello"
+            })
 
-        // expect(parse("@Hello $x.", "$x = Hello")).toMatchObject(
-        //     {
-        //         tags: [ { id: "Hello" }],
-        //         value: "Hello"
-        //     })
-        const node = parse("@Hello $x.", "$x = @World Hello")
-        expect(node).toMatchObject(
+        expect(parse("@Hello $x.", "$x = Hello")).toMatchObject(
+            {
+                tags: [ { id: "Hello" }],
+                value: "Hello"
+            })
+        expect(parse("@Hello $x.", "$x = @World Hello")).toMatchObject(
             {
                 tags: [ { id: "World", args: {} }, { id: "Hello", args: {} } ],
                 value: "Hello"
