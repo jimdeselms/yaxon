@@ -1,5 +1,4 @@
 const { parse } = require('./parser')
-const { join } = require('./join')
 
 describe("join", () => {
     test("object join", () => {
