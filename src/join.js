@@ -27,7 +27,7 @@ function join(node1, node2) {
 
 function joinNodes(node1, node2) {
     // Just combine the tags
-    const result  = { tags: [...node1.tags || [], ...node2.tags || []] }
+    const result  = { tags: [...(node1.tags || []), ...(node2.tags || [])] }
 
     const node1Vardef = node1.vardef
     const node2Vardef = node2.vardef

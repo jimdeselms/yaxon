@@ -211,7 +211,7 @@ class Parser {
                 node.vardef = key.value
             }
 
-            node.tags = [...tags, ...node.tags || []]
+            node.tags = [...tags, ...(node.tags || [])]
 
             result.push([key.value, node])
         }
