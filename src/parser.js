@@ -29,6 +29,18 @@ function parse(...texts) {
     return linkReferences(ast)
  }
 
+ function joinDocs(...docs) {
+     if (docs.length === 0) return undefined
+
+     let newAst = docs[0]
+
+     for (let i = 1; i < docs.length; i++) {
+         newAst = join(newAst, docs[i])
+     }
+
+     return linkReferences(newAst)
+ }
+
 class Parser {
     constructor(text, source) {
         this.tokens = lexer.getTokens(text, source)[Symbol.iterator]()
@@ -270,5 +282,6 @@ class Parser {
 }
 
 module.exports = {
-    parse
+    parse,
+    join: joinDocs
 }

@@ -54,6 +54,7 @@ function findVariables(ast, variables) {
     }
 
     if (ast.vardef) {
+        newNode.vardef = ast.vardef
         variables[ast.vardef] = newNode
     }
 
@@ -69,6 +70,8 @@ function findVariables(ast, variables) {
     return newNode
 }
 
+// This allows us to have a 'value' field that allows the user to quickly get the JSON value for the current node without having
+// to wade through "nodes" and "value" and "tags" fields.
 class LazyValue {
     constructor(nodes) {
         this.nodes = nodes
@@ -101,7 +104,9 @@ function replaceReferences(ast, variables) {
 
     if (ast.varref) {
         if (variables[ast.varref] === undefined) {
-            throw new Error("Unknown variable $" + ast.varref)
+            // If we have an undefined variable, we'll just pass it along so that it can get resolved as it is merged with other nodes.
+            // TODO - need a way to make this a real error if the "final" document has undefined references.
+            return ast
         }
         return variables[ast.varref]
     }
@@ -148,7 +153,7 @@ function applyAmendments(ast, variables) {
         }
     }
 
-    delete ast.amendments
+//    delete ast.amendments
 }
 
 function resolveTagReferences(tag, variables, visited) {

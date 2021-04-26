@@ -1,9 +1,10 @@
-const { parse } = require('./parser')
+const { parse, joinDocs } = require('./parser')
 const { stringify } = require('./stringifier')
 
 const YAXON = {
     parse,
-    stringify
+    stringify,
+    join: joinDocs
 }
 
 module.exports = YAXON

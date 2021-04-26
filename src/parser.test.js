@@ -167,5 +167,5 @@ function testValue(text, expected) {
 
 function testTags(text, ...expected) {
     const expr = parse(text)
-    expect(expr.tags).toEqual(expected)
+    expect(expr.tags).toMatchObject(expected)
 }
