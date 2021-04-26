@@ -2,6 +2,7 @@ const lexer = require('./lexer')
 const { join } = require('./join')
 const { linkReferences } = require("./linker")
 const YaxonNode = require('./YaxonNode')
+const { YaxonError } = require("./YaxonError")
 
 const Kind = lexer.Kind
 
@@ -124,7 +125,7 @@ class Parser {
             case Kind.LEFT_BRACKET: return this.parseArray()
             case Kind.LEFT_BRACE: return this.parseObject()
             case Kind.DOT: return this.parseNullAbbreviation()
-            default: throw new Error(`Unexpected token ${token.text} (${token.kind.toString()})`)
+            default: throw new YaxonError(`Unexpected token '${token.kind.description}'`, token.line, token.column, token.source)
         }
     }
 

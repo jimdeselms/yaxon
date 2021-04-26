@@ -123,7 +123,7 @@ function testTokens(text, ...expected) {
 
     for (let i = 0; i < Math.min(expected.length, actual.length); i++) {
         if (expected[i].kind && actual[i].kind !== expected[i].kind) {
-            throw new Error(`Token ${i}: Expected kind ${Symbol.keyFor(expected[i].kind)}, got ${Symbol.keyFor(actual[i].kind)}`)
+            throw new Error(`Token ${i}: Expected kind ${expected[i].kind}, got ${actual[i].kind}`)
         }
         if (expected[i].value && actual[i].value !== expected[i].value) {
             throw new Error(`Token ${i}: Expected value ${expected[i].value}, got ${actual[i].value}`)

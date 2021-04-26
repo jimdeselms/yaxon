@@ -34,6 +34,8 @@ const UNQUOTED_MULTI_WORD_STRING_TERMINATORS = COMMON_TERMINATORS + ":"
 const UNQUOTED_SINGLE_WORD_STRING_TERMINATORS = COMMON_TERMINATORS + " \t"
 const WHITESPACE = " \r\t\n,"
 
+const { YaxonError } = require('./YaxonError')
+
 const Kind = {
     NUMBER,
     STRING,
@@ -141,7 +143,7 @@ function* getTokens(text, source=undefined) {
                     if (char === '\0') {
                         continue
                     } else {
-                        throw new Error("DARN")
+                        throw new YaxonError(`Unexpected character '${char}'`, currLine, currColumn, source)
                     }
                 }
                 break
