@@ -53,7 +53,7 @@ const Kind = {
     EOF
 }
 
-function* getTokens(text) {
+function* getTokens(text, source=undefined) {
     let state = START_STATE
 
     const it = text[Symbol.iterator]()
@@ -66,6 +66,11 @@ function* getTokens(text) {
     let allowSpaceInUnquotedString = true
     let stateAfterEscape
     let hexCharCount = 0
+
+    let currLine = 1
+    let currColumn = 1
+    let startLine = 1
+    let startColumn = 1
 
     while (!endCharRead) {
         if (advance) {
@@ -80,6 +85,13 @@ function* getTokens(text) {
             } else {
                 itResponse = it.next()
             }
+
+            if (itResponse.value === '\n') {
+                currLine += 1
+                currColumn = 0
+            } else {
+                currColumn += 1
+            }
         } else if (itResponse.done) {
             endCharRead = true
             continue
@@ -89,6 +101,8 @@ function* getTokens(text) {
 
         switch (state) {
             case START_STATE: {
+                startLine = currLine; startColumn = currColumn
+
                 if (char === '-' || char === '+' || (char >= '0' && char <= '9')) {
                     currToken += char
                     state = INTEGER_STATE
@@ -96,7 +110,7 @@ function* getTokens(text) {
                 } else if (ALLOWED_PUNCTUATION.includes(char)) {
                     advance = true
 
-                    yield { kind: Symbol.for(char), text: char, value: char }
+                    yield { kind: Symbol.for(char), text: char, value: char, line: startLine, column: startColumn, source }
 
                     // Special cases; after a variable or tag name, we don't allow spaces
                     // on unquoted strings.
@@ -146,7 +160,7 @@ function* getTokens(text) {
                     state = EXPONENT_STATE
                     advance = true
                 } else if (char !== 'e' && char !== 'E' && (char < '0' || char > '9')) {
-                    yield { kind: NUMBER, text: currToken, value: parseInt(currToken) }
+                    yield { kind: NUMBER, text: currToken, value: parseInt(currToken), line: startLine, column: startColumn, source }
                     currToken = ""
                     state = START_STATE
                 } else {
@@ -162,7 +176,7 @@ function* getTokens(text) {
                     state = EXPONENT_STATE
                     advance = true
                 } else if (char < '0' || char > '9') {
-                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
+                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken), line: startLine, column: startColumn, source }
                     currToken = ""
                     state = START_STATE
                 } else {
@@ -174,7 +188,7 @@ function* getTokens(text) {
 
             case EXPONENT_STATE: {
                 if (char !== '-' && char !== '+' && (char < '0' || char > '9')) {
-                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
+                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken), line: startLine, column: startColumn, source }
                     currToken = ""
                     state = START_STATE
                 } else {
@@ -186,7 +200,7 @@ function* getTokens(text) {
 
             case EXPONENT_VALUE_STATE: {
                 if (char < '0' || char > '9') {
-                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken) }
+                    yield { kind: NUMBER, text: currToken, value: parseFloat(currToken), line: startLine, column: startColumn, source }
                     currToken = ""
                     state = START_STATE
                 } else {
@@ -197,7 +211,7 @@ function* getTokens(text) {
             }
 
             case BIGINT_STATE: {
-                yield { kind: BIGINT, text: currToken + "n", value: BigInt(currToken) }
+                yield { kind: BIGINT, text: currToken + "n", value: BigInt(currToken), line: startLine, column: startColumn, source }
                 currToken = ""
                 state = START_STATE
                 break
@@ -211,7 +225,7 @@ function* getTokens(text) {
                 if (terminators.includes(char)) {
                     // Unquoted will must be trimmed. If leading/trailing spaces are 
                     // necessary, use quotes.
-                    yield { kind: STRING, text: currToken.trim(), value: currToken.trim() }
+                    yield { kind: STRING, text: currToken.trim(), value: currToken.trim(), line: startLine, column: startColumn, source }
                     currToken = ""
                     state = START_STATE
                     allowSpaceInUnquotedString = true
@@ -228,7 +242,7 @@ function* getTokens(text) {
 
             case QUOTED_STRING_STATE: {
                 if (char === stringTerm) {
-                    yield { kind: STRING, text: `${stringTerm}${currToken}${stringTerm}`, value: currToken }
+                    yield { kind: STRING, text: `${stringTerm}${currToken}${stringTerm}`, value: currToken, line: startLine, column: startColumn, source }
                     advance = true
                     currToken = ""
                     state = START_STATE
@@ -245,7 +259,7 @@ function* getTokens(text) {
 
             case MULTILINE_STRING_STATE: {
                 if (char === '`') {
-                    yield { kind: STRING, text: '`' + currToken + '`', value: currToken}
+                    yield { kind: STRING, text: '`' + currToken + '`', value: currToken, line: startLine, column: startColumn, source }
                     advance = true
                     currToken = ""
                     state = START_STATE
@@ -304,7 +318,7 @@ function* getTokens(text) {
         }
     }
 
-    yield { kind: EOF, value: "EOF", text: "EOF" }
+    yield { kind: EOF, value: "EOF", text: "EOF", line: currLine, column: currColumn, source }
 }
 
 module.exports = {

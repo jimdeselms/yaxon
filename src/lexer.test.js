@@ -96,9 +96,30 @@ describe("lexer", () => {
     })
 })
 
+describe("positioning", () => {
+    it("simple case", () => {
+        // Note that the last token is always the EOF.
+        testPosition("abc : 5",
+            { line: 1, column: 1, source: "file.yxn" },
+            { line: 1, column: 5, source: "file.yxn" },
+            { line: 1, column: 7, source: "file.yxn" },
+            { line: 1, column: 8, source: "file.yxn" })
+        })
+    it("multiple lines", () => {
+        // Note that the last token is always the EOF.
+        testPosition("abc\ndef;ghi\njkl",
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+            { line: 2, column: 4 },
+            { line: 2, column: 5 },
+            { line: 3, column: 1 },
+            { line: 3, column: 4 })
+        })
+    })
+
 function testTokens(text, ...expected) {
 
-    const actual = Array.from(lexer.getTokens(text))
+    const actual = Array.from(lexer.getTokens(text, "file.yxn"))
 
     for (let i = 0; i < Math.min(expected.length, actual.length); i++) {
         if (expected[i].kind && actual[i].kind !== expected[i].kind) {
@@ -115,4 +136,19 @@ function testTokens(text, ...expected) {
     if (actual.length-1 !== expected.length) {
         throw new Error(`Expected ${expected.length} tokens, got ${actual.length-1}`)
     }
+}
+
+function testPosition(text, ...expected) {
+    const actual = Array.from(lexer.getTokens(text, "file.yxn"))
+
+    for (let i = 0; i < Math.min(actual.length, expected.length); i++) {
+        const currActual = actual[i]
+        const currExpected = expected[i]
+
+        if (currExpected.line) expect(currActual.line).toBe(currExpected.line)
+        if (currExpected.column) expect(currActual.column).toBe(currExpected.column)
+        if (currExpected.source) expect(currActual.source).toBe(currExpected.source)
+    }
+
+    expect(actual.length).toBe(expected.length)
 }

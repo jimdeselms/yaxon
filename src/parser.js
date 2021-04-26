@@ -9,7 +9,18 @@ function parse(...texts) {
     let ast = null
 
     for (const text of texts) {
-        const p = new Parser(text)
+        let currText
+        let currSource
+        
+        if (typeof(text) === "string") {
+            currText = text
+            currSource = undefined
+        } else {
+            currText = text.text
+            currSource = text.source
+        }
+
+        const p = new Parser(currText, currSource)
         const newAst = p.parseDocument()
         ast = join(ast, newAst)
     }
@@ -18,8 +29,8 @@ function parse(...texts) {
  }
 
 class Parser {
-    constructor(text) {
-        this.tokens = lexer.getTokens(text)[Symbol.iterator]()
+    constructor(text, source) {
+        this.tokens = lexer.getTokens(text, source)[Symbol.iterator]()
         this.itState = this.tokens.next()
     }
 
