@@ -1,4 +1,4 @@
-const { parse, joinDocs } = require('./parser')
+const { parse, join } = require('./parser')
 const { stringify } = require('./stringifier')
 
 const YAXON = {
