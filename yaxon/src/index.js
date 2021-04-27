@@ -4,7 +4,7 @@ const { stringify } = require('./stringifier')
 const YAXON = {
     parse,
     stringify,
-    join: joinDocs
+    join
 }
 
 module.exports = YAXON
