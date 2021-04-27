@@ -1,0 +1,25 @@
+{
+  "name": "yaxon-loader",
+  "version": "0.0.1",
+  "description": "Load and merge multiple yaxon files from a single file",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "yaxon": "0.0.8"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
+  },
+  "jest": {
+    "testMatch": [
+      "/**/*.test.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}
