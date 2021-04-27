@@ -1,16 +1,17 @@
 {
   "name": "yaxon",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "",
   "main": "src/index.js",
   "scripts": {
     "test": "jest --detectOpenHandles"
   },
   "author": "Jim DeSelms",
-  "files": [ 
+  "files": [
     "src/index.js",
     "src/join.js",
     "src/lexer.js",
+    "src/linker.js",
     "src/parser.js",
     "src/stringifier.js",
     "src/YaxonError.js",
