@@ -44,7 +44,7 @@ function joinNodes(node1, node2) {
         throw new Error("Cannot merge two nodes with different variable refereces")
     }
 
-    if (node1.nodes && node2.nodes) {
+    if (node1.nodes || node2.nodes) {
         const nodes = joinObjectsOrArrays(node1.nodes, node2.nodes)
         result.nodes = nodes
     } else if (node1.value !== undefined && node1.value !== null) {
@@ -95,6 +95,13 @@ function joinNodes(node1, node2) {
 }
 
 function joinObjectsOrArrays(nodes1, nodes2) {
+    if (typeof(nodes1) !== "object" && typeof(nodes2) !== "object") {
+        throw new Error("Expected at least one array or object")
+    }
+
+    nodes1 = nodes1 ?? (Array.isArray(nodes2) ? [] : {})
+    nodes2 = nodes2 ?? (Array.isArray(nodes1) ? [] : {})
+
     if (Array.isArray(nodes1) !== Array.isArray(nodes2)) {
         throw new Error("Cannot merge an array with a non-array")
     } else if (Array.isArray(nodes1)) {

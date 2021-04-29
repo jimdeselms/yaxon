@@ -1,6 +1,6 @@
 {
   "name": "yaxon",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -8,14 +8,8 @@
   },
   "author": "Jim DeSelms",
   "files": [
-    "src/index.js",
-    "src/join.js",
-    "src/lexer.js",
-    "src/linker.js",
-    "src/parser.js",
-    "src/stringifier.js",
-    "src/YaxonError.js",
-    "src/YaxonNode.js"
+    "src/**/*",
+    "!src/**/*.test.js"
   ],
   "license": "ISC",
   "devDependencies": {

@@ -33,6 +33,52 @@ describe("join", () => {
         })
     })
 
+    test("join array with null", () => {
+        expect(parse("null", "[1]", "[2]")).toMatchObject({
+            nodes: [
+                { value: 1 },
+                { value: 2 }
+            ]
+        })
+
+        expect(parse("[1]", "null", "[2]")).toMatchObject({
+            nodes: [
+                { value: 1 },
+                { value: 2 }
+            ]
+        })
+
+        expect(parse("[1]", "[2]", "null")).toMatchObject({
+            nodes: [
+                { value: 1 },
+                { value: 2 }
+            ]
+        })
+    })
+
+    test("join object with null", () => {
+        expect(parse("null", "{a:1}", "{b:2}")).toMatchObject({
+            nodes: {
+                a: { value: 1 },
+                b: { value: 2 },
+            }
+        })
+
+        expect(parse("{a:1}", "null", "{b:2}")).toMatchObject({
+            nodes: {
+                a: { value: 1 },
+                b: { value: 2 },
+            }
+        })
+
+        expect(parse("{a:1}", "{b:2}", "null")).toMatchObject({
+            nodes: {
+                a: { value: 1 },
+                b: { value: 2 },
+            }
+        })
+    })
+
     test("join varref and vardef", () => {
         expect(parse("$x = Hello", "$x")).toMatchObject(
             {

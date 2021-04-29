@@ -1,17 +1,23 @@
 {
-  "name": "yaxon-loader",
+  "name": "yaxon-include",
   "version": "0.0.1",
   "description": "Load and merge multiple yaxon files from a single file",
   "main": "src/index.js",
   "scripts": {
     "test": "jest"
   },
-  "author": "",
+  "author": "Jim DeSelms",
   "license": "ISC",
   "dependencies": {
-    "yaxon": "0.0.8"
+    "axios": "^0.21.1",
+    "yaxon": "0.0.13"
   },
+  "files": [
+    "src/**/*",
+    "!src/**/*.test.js"
+  ],
   "devDependencies": {
+    "axios-mock-adapter": "^1.19.0",
     "jest": "^26.6.3"
   },
   "jest": {
