@@ -391,14 +391,25 @@ This represents the string:
     This is a multiline string. This line will appear on the same line, as will this.
     And this line will appear on a new line, along with this.
 
-YAXON gives you some flexibility on how whitespace is handled in multiline strings. Here is
-how to represent a mutliline string that replaces newlines with spaces. If you want to insert
-a new line, you can enter two lines into your text.
+If you would like to preserve whitespace, you can start your string on the second line 
+(the first line will be ignored.) Example:
 
+    multiline string: `
+      This string will be split into multiple lines
+        and the indentation on the first line will be
+        applied to all
+      other lines.
 
+      The end.`
 
-    `>
-        This is a multiline string
+The string:
+
+    This string will be split into multiple lines
+      and the indentation on the first line will be
+      applied to all
+    other lines.
+
+    The end.
 
 ## Usage
 

@@ -71,7 +71,11 @@ describe("lexer", () => {
 
     describe("mutli-line-strings", () => {
         it("by default, it trims, and newlines are wrapped.", () => {
-            testTokens("` this is a test \n this is only a test \n\n new line `", { value: "this is a test this is only a test\nnew line"})
+            testTokens("` test \n test \n\n test `", { value: "test test\ntest"})
+        })
+
+        it("if the first line of the multiline string is empty, then don't join lines", () => {
+            testTokens("`\nhello\nworld\n\nbye`", { value: "hello\nworld\n\nbye"})
         })
     })
 

@@ -329,9 +329,15 @@ function getMultilineText(text) {
     // See the README.md for details on how multiline strings work
     // The first character tells us what mode we're in.
     let mode
-    switch (text[0]) {
-        default:
-            mode = { trim: true, join: true }
+    if (lines.length === 0) {
+        return ""
+    }
+
+    if (lines[0].trim() === "") {
+        mode = { trim: false, join: false, skipFirst: true }
+
+    } else {
+        mode = { trim: true, join: true, skipFirst: false }
     }
 
     if (mode.trim) {
@@ -364,6 +370,10 @@ function getMultilineText(text) {
         }
 
         lines = joinedLines
+    }
+
+    if (mode.skipFirst) {
+        lines.splice(0, 1)
     }
 
     return lines.join('\n')
