@@ -71,11 +71,38 @@ describe("lexer", () => {
 
     describe("mutli-line-strings", () => {
         it("by default, it trims, and newlines are wrapped.", () => {
-            testTokens("` test \n test \n\n test `", { value: "test test\ntest"})
+            testTokens("` test\n  test\n\n test`", { value: "test  test\ntest"})
         })
 
         it("if the first line of the multiline string is empty, then don't join lines", () => {
             testTokens("`\nhello\nworld\n\nbye`", { value: "hello\nworld\n\nbye"})
+        })
+
+        it("respects the indentation on the first line", () => {
+            testTokens("`\n  hello\n    world\n\n  bye`", { value: "hello\n  world\n\nbye"})
+        })
+
+        it("keeps whatever terminating newlines you might have", () => {
+            testTokens("`\nthis is a test\nthis is only a test\n\n`", { value: "this is a test\nthis is only a test\n\n"})
+        })
+
+        it("will wrap if the first line is '>'", () => {
+            testTokens("`>\n  this is a test\n  this is only a test.\n`", { value: "this is a test this is only a test."})
+            testTokens("`>\n  this is a test\n  this is only a test.\n\n`", { value: "this is a test this is only a test.\n"})
+        })
+
+        it("allows the indentation to be explicitly stated with >n", () => {
+            testTokens("`>0\n    this is a test\n  this is only a test`", { value: "    this is a test   this is only a test"})
+            testTokens("`>1\n    this is a test\n  this is only a test`", { value: "   this is a test  this is only a test"})
+            testTokens("`>2\n    this is a test\n  this is only a test`", { value: "  this is a test this is only a test"})
+            testTokens("`>3\n    this is a test\n  this is only a test`", { value: " this is a test this is only a test"})
+        })
+
+        it("allows the indentation to be explicitly stated with |n", () => {
+            testTokens("`|0\n    this is a test\n  this is only a test`", { value: "    this is a test\n  this is only a test"})
+            testTokens("`|1\n    this is a test\n  this is only a test`", { value: "   this is a test\n this is only a test"})
+            testTokens("`|2\n    this is a test\n  this is only a test`", { value: "  this is a test\nthis is only a test"})
+            testTokens("`|3\n    this is a test\n  this is only a test`", { value: " this is a test\nthis is only a test"})
         })
     })
 

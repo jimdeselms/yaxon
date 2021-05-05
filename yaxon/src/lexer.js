@@ -333,16 +333,26 @@ function getMultilineText(text) {
         return ""
     }
 
-    if (lines[0].trim() === "") {
-        mode = { trim: false, join: false, skipFirst: true }
+    const firstLine = lines[0].trim()
 
+    if (firstLine === "") {
+        mode = { join: false, skipFirst: true, indentation: getIndentation(lines[1] || "") }
+    } else if (firstLine.match(/[>|][0-9]*/)) {
+        const join = firstLine[0] === '>'
+        const num = parseInt(firstLine.substr(1))
+
+        if (isNaN(num)) {
+            mode = { join, skipFirst: true, indentation: getIndentation(lines[1]) }
+        } else if (!isNaN(num)) {
+            mode = { join, skipFirst: true, indentation: num }
+        }
     } else {
-        mode = { trim: true, join: true, skipFirst: false }
+        mode = { join: true, skipFirst: false, indentation: getIndentation(lines[0]) }
     }
 
-    if (mode.trim) {
-        lines = lines.map(l => l.trim())
-    }
+    if (mode.skipFirst) {
+        lines.splice(0, 1)
+    } 
 
     if (mode.join) {
         const joinedLines = []
@@ -358,9 +368,9 @@ function getMultilineText(text) {
             } else {
                 if (blankLine) {
                     blankLine = false
-                    currLine += line
+                    currLine += trimIndentation(line, mode.indentation)
                 } else {
-                    currLine += " " + line
+                    currLine += " " + trimIndentation(line, mode.indentation)
                 }
             }
         }
@@ -369,14 +379,39 @@ function getMultilineText(text) {
             joinedLines.push(currLine)
         }
 
-        lines = joinedLines
-    }
+        if (blankLine) {
+            currLine += '\n'
+        }
 
-    if (mode.skipFirst) {
-        lines.splice(0, 1)
+        lines = joinedLines
+    } else {
+        lines = lines.map(l => trimIndentation(l, mode.indentation))
     }
 
     return lines.join('\n')
+}
+
+function getIndentation(line) {
+    let indentation = 0
+    let i = 0
+
+    while (line[i++] === ' ') {
+        indentation++
+    }
+
+    return indentation
+}
+
+function trimIndentation(line, indentation) {
+    let result = line
+    for (let i = 0; i < indentation; i++) {
+        if (result[0] !== ' ') {
+            return result
+        }
+        result = result.substr(1)
+    }
+
+    return result
 }
 
 module.exports = {

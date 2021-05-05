@@ -373,10 +373,9 @@ can still use quotes:
 ### Multiline strings
 
 YAXON allows you to specify strings that span multiple lines, using the backtick (`)
-character. By default, mutliline strings will trim spaces at the beginning and end of lines, and will wrap lines of text onto a single line.
+character.
 
 To insert a break, you can insert an extra line in the text:
-
 
     multiline string: `This is a multiline string.
     This line will appear on the same line,
@@ -409,8 +408,40 @@ The string:
       applied to all
     other lines.
 
-    The end.
+    The end.`
 
+Multiline strings automatically indent the text based on the indentation of the first line. If the first line is on the same line as the 
+opening backtick, then the indentation will be the number of spaces between the backtick and the first character.
+
+If you want text to wrap, but want the first line of the text to be on a new line, you can explicitly start your string with `> (a nod to YAML's syntax). Example:
+
+    multiline string: `>
+      these lines
+      will wrap.`
+
+produces this string: "these lines will wrap."
+
+Likewise, you can explicitly force the text to be split into multiple lines using `|
+
+    multiline string: `>
+      these lines
+      will not wrap.`
+
+produces the string
+
+    these lines
+    will not wrap.
+
+Finally, you can override the number of indentation spaces if you specify a number after the
+`>` or `|`:
+
+    multiline string: `|4
+          Even though this line is indented 6 spaces,
+        we've overridden the indentation to 4.
+
+Result:
+      Even though this line is indented 6 spaces,
+    we've overridden the indentation to 4.
 ## Usage
 
     const YAXON = require('yaxon')
