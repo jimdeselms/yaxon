@@ -370,6 +370,36 @@ can still use quotes:
 
     @"this tag is multiple words"("this arg too": 123).
 
+### Multiline strings
+
+YAXON allows you to specify strings that span multiple lines, using the backtick (`)
+character. By default, mutliline strings will trim spaces at the beginning and end of lines, and will wrap lines of text onto a single line.
+
+To insert a break, you can insert an extra line in the text:
+
+
+    multiline string: `This is a multiline string.
+    This line will appear on the same line,
+    as will this.
+
+    And this line will appear on a new line,
+    along with this.` 
+
+
+This represents the string:
+
+    This is a multiline string. This line will appear on the same line, as will this.
+    And this line will appear on a new line, along with this.
+
+YAXON gives you some flexibility on how whitespace is handled in multiline strings. Here is
+how to represent a mutliline string that replaces newlines with spaces. If you want to insert
+a new line, you can enter two lines into your text.
+
+
+
+    `>
+        This is a multiline string
+
 ## Usage
 
     const YAXON = require('yaxon')

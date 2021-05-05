@@ -69,8 +69,10 @@ describe("lexer", () => {
         testTokens(" \t\r\n ", ...[])
     })
 
-    it("multi-line string", () => {
-        testTokens("`this is a test\nthis is only a test`", { value: "this is a test\nthis is only a test"})
+    describe("mutli-line-strings", () => {
+        it("by default, it trims, and newlines are wrapped.", () => {
+            testTokens("` this is a test \n this is only a test \n\n new line `", { value: "this is a test this is only a test\nnew line"})
+        })
     })
 
     it("numbers", () => {

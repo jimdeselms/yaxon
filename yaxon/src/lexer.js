@@ -261,7 +261,7 @@ function* getTokens(text, source=undefined) {
 
             case MULTILINE_STRING_STATE: {
                 if (char === '`') {
-                    yield { kind: STRING, text: '`' + currToken + '`', value: currToken, line: startLine, column: startColumn, source }
+                    yield { kind: STRING, text: '`' + currToken + '`', value: getMultilineText(currToken), line: startLine, column: startColumn, source }
                     advance = true
                     currToken = ""
                     state = START_STATE
@@ -321,6 +321,52 @@ function* getTokens(text, source=undefined) {
     }
 
     yield { kind: EOF, value: "EOF", text: "EOF", line: currLine, column: currColumn, source }
+}
+
+function getMultilineText(text) {
+    let lines = text.split('\n')
+
+    // See the README.md for details on how multiline strings work
+    // The first character tells us what mode we're in.
+    let mode
+    switch (text[0]) {
+        default:
+            mode = { trim: true, join: true }
+    }
+
+    if (mode.trim) {
+        lines = lines.map(l => l.trim())
+    }
+
+    if (mode.join) {
+        const joinedLines = []
+
+        let currLine = ""
+        let blankLine = true
+
+        for (const line of lines) {
+            if (line.length === 0) {
+                joinedLines.push(currLine)
+                currLine = ""
+                blankLine = true
+            } else {
+                if (blankLine) {
+                    blankLine = false
+                    currLine += line
+                } else {
+                    currLine += " " + line
+                }
+            }
+        }
+
+        if (currLine.length > 0) {
+            joinedLines.push(currLine)
+        }
+
+        lines = joinedLines
+    }
+
+    return lines.join('\n')
 }
 
 module.exports = {
